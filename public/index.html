@@ -7,9 +7,83 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app">
-    <div id="loading">Loading…</div>
+
+  <!-- Login screen -->
+  <div id="login-screen" class="hidden">
+    <div class="login-card">
+      <div class="logo">⚡ WHOOP</div>
+      <h1>Your health, at a glance</h1>
+      <p>Connect your Whoop account to see recovery, strain, sleep, and workout data.</p>
+      <a href="/auth/login" class="btn-connect">Connect Whoop</a>
+    </div>
   </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="hidden">
+    <header>
+      <div class="header-inner">
+        <div class="logo">⚡ WHOOP</div>
+        <div class="header-right">
+          <span id="user-name" class="user-name"></span>
+          <a href="/auth/logout" class="btn-logout">Disconnect</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="cards-grid">
+
+        <div class="card card--recovery" id="card-recovery">
+          <div class="card-label">Recovery Score</div>
+          <div class="card-value" id="val-recovery">—</div>
+          <div class="card-sub" id="sub-recovery">Loading…</div>
+        </div>
+
+        <div class="card card--strain" id="card-strain">
+          <div class="card-label">Day Strain</div>
+          <div class="card-value" id="val-strain">—</div>
+          <div class="card-sub">out of 21</div>
+        </div>
+
+        <div class="card card--sleep" id="card-sleep">
+          <div class="card-label">Sleep Performance</div>
+          <div class="card-value" id="val-sleep-perf">—</div>
+          <div class="card-sub" id="sub-sleep">Loading…</div>
+        </div>
+
+        <div class="card card--hrv" id="card-hrv">
+          <div class="card-label">HRV</div>
+          <div class="card-value" id="val-hrv">—</div>
+          <div class="card-sub" id="sub-rhr">Resting HR: —</div>
+        </div>
+
+      </div>
+
+      <section class="workouts-section">
+        <h2>Recent Workouts</h2>
+        <div class="table-wrap">
+          <table id="workouts-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Activity</th>
+                <th>Strain</th>
+                <th>Avg HR</th>
+              </tr>
+            </thead>
+            <tbody id="workouts-body">
+              <tr><td colspan="4" class="loading-row">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Displaying real Whoop data — mock mode not active</p>
+    </footer>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
