@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whoop Wearable – Feature & Integration Guide · PBI #213</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+:root{
+  --bg:#0a0b0d;--surface:#111318;--surface2:#181c23;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#e8eaf0;--muted:#7d8494;--accent:#00d4aa;--accent2:#3b82f6;--accent3:#8b5cf6;
+  --warn:#f59e0b;--danger:#ef4444;--pink:#ec4899;
+  --font:'DM Sans','Inter',system-ui,sans-serif;--mono:'DM Mono','Cascadia Code',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.65;min-height:100vh;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#0a0b0d 0%,#0d1220 50%,#0a0e1a 100%);border-bottom:1px solid var(--border2);padding:60px 40px 48px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-80px;right:-80px;width:400px;height:400px;background:radial-gradient(circle,rgba(0,212,170,0.08) 0%,transparent 70%);}
+.hero::after{content:'';position:absolute;bottom:-60px;left:30%;width:300px;height:300px;background:radial-gradient(circle,rgba(59,130,246,0.06) 0%,transparent 70%);}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.3);border-radius:20px;font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:20px;}
+.badge::before{content:'●';font-size:8px;}
+h1{font-family:var(--font);font-size:38px;font-weight:600;letter-spacing:-.02em;color:#fff;line-height:1.15;margin-bottom:12px;}
+h1 span{color:var(--accent);}
+.hero-sub{color:var(--muted);font-size:16px;max-width:600px;margin-bottom:28px;}
+.meta-row{display:flex;gap:24px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--muted);}
+.meta-row span{display:flex;align-items:center;gap:6px;}
+.meta-row strong{color:var(--text);}
+
+/* NAV */
+.nav-strip{background:var(--surface);border-bottom:1px solid var(--border);padding:0 40px;display:flex;gap:4px;overflow-x:auto;position:sticky;top:0;z-index:100;}
+.nav-strip a{display:block;padding:14px 16px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
+.nav-strip a:hover{color:var(--text);border-color:var(--border2);}
+.nav-strip a.active{color:var(--accent);border-color:var(--accent);}
+
+/* LAYOUT */
+.page{max-width:1100px;margin:0 auto;padding:48px 40px;}
+.section{margin-bottom:64px;}
+.section-header{display:flex;align-items:baseline;gap:14px;margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.section-num{font-family:var(--mono);font-size:11px;color:var(--accent);opacity:.6;font-weight:400;}
+h2{font-size:22px;font-weight:600;color:#fff;letter-spacing:-.01em;}
+h3{font-size:16px;font-weight:500;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+h3::before{content:'';display:inline-block;width:4px;height:16px;background:var(--accent);border-radius:2px;}
+p.lead{color:var(--muted);margin-bottom:24px;}
+
+/* TABLES */
+.info-table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:28px;}
+.info-table th{text-align:left;padding:10px 14px;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--surface2);border-bottom:1px solid var(--border);}
+.info-table td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;}
+.info-table tr:last-child td{border-bottom:none;}
+.info-table tr:hover td{background:rgba(255,255,255,.02);}
+code{font-family:var(--mono);font-size:12px;padding:2px 6px;background:rgba(255,255,255,.07);border-radius:4px;color:var(--accent);}
+
+/* CARDS */
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:32px;}
+.metric-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;transition:border-color .2s;}
+.metric-card:hover{border-color:var(--border2);}
+.metric-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:var(--card-accent,var(--accent));}
+.metric-icon{font-size:22px;margin-bottom:10px;display:block;}
+.metric-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;}
+.metric-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+.metric-range{display:inline-block;margin-top:8px;padding:2px 8px;background:rgba(255,255,255,.05);border-radius:4px;font-family:var(--mono);font-size:11px;color:var(--muted);}
+
+/* ALERTS */
+.alert{display:flex;gap:14px;padding:14px 18px;border-radius:10px;margin-bottom:16px;border-left:3px solid;font-size:14px;}
+.alert-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.alert.warn{background:rgba(245,158,11,.08);border-color:var(--warn);color:#d4a04a;}
+.alert.info{background:rgba(59,130,246,.08);border-color:var(--accent2);color:#7aacf0;}
+.alert.ok{background:rgba(0,212,170,.08);border-color:var(--accent);color:var(--accent);}
+.alert.danger{background:rgba(239,68,68,.08);border-color:var(--danger);color:#f87171;}
+
+/* ENDPOINTS */
+.endpoint{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;}
+.endpoint-header{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;transition:background .15s;}
+.endpoint-header:hover,.endpoint.open .endpoint-header{background:rgba(255,255,255,.03);}
+.method{font-family:var(--mono);font-size:11px;font-weight:500;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;}
+.method.get{background:rgba(0,212,170,.15);color:var(--accent);}
+.method.post{background:rgba(59,130,246,.15);color:var(--accent2);}
+.endpoint-path{font-family:var(--mono);font-size:13px;color:var(--text);flex:1;}
+.endpoint-desc{font-size:12px;color:var(--muted);flex-shrink:0;}
+.endpoint-body{padding:0 18px 16px;border-top:1px solid var(--border);display:none;}
+.endpoint.open .endpoint-body{display:block;}
+pre{background:#0d0f14;border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--mono);font-size:12px;line-height:1.6;overflow-x:auto;color:#c9d1e0;margin:12px 0;}
+.kw{color:#c792ea;}.str{color:#c3e88d;}.num{color:#f78c6c;}.key{color:#82aaff;}.cmt{color:#546e7a;font-style:italic;}
+
+/* FLOW STEPS */
+.flow-diagram{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin-bottom:28px;}
+.flow-steps{display:flex;flex-direction:column;gap:0;position:relative;}
+.flow-step{display:flex;gap:20px;align-items:flex-start;padding:16px 0;position:relative;}
+.flow-step:not(:last-child)::after{content:'';position:absolute;left:18px;top:52px;width:2px;height:calc(100% - 36px);background:var(--border2);}
+.step-num{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid rgba(0,212,170,.3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--accent);flex-shrink:0;z-index:1;}
+.step-content{flex:1;padding-top:6px;}
+.step-title{font-weight:500;color:#fff;margin-bottom:4px;}
+.step-detail{font-size:13px;color:var(--muted);}
+
+/* SCOPE TAGS */
+.scope-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-family:var(--mono);font-size:11px;}
+.scope-read{background:rgba(0,212,170,.1);color:var(--accent);}
+.scope-write{background:rgba(245,158,11,.1);color:var(--warn);}
+
+/* ═══ COMPETITOR COMPARISON ═══ */
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-bottom:32px;}
+.comp-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s;}
+.comp-card:hover{border-color:var(--border2);}
+.comp-card.whoop-card{border-color:rgba(0,212,170,.35);}
+.comp-head{padding:20px 20px 16px;display:flex;align-items:flex-start;gap:14px;}
+.comp-logo{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.comp-name{font-size:16px;font-weight:600;color:#fff;margin-bottom:2px;}
+.comp-model{font-size:12px;color:var(--muted);}
+.comp-price{margin-left:auto;text-align:right;}
+.comp-price-main{font-size:14px;font-weight:600;color:var(--text);}
+.comp-price-sub{font-size:11px;color:var(--muted);}
+.comp-body{padding:0 20px 20px;}
+.comp-rows{}
+.comp-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.comp-row:last-child{border-bottom:none;}
+.comp-key{color:var(--muted);flex-shrink:0;width:110px;font-size:12px;}
+.comp-val{color:var(--text);flex:1;}
+.pill{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:500;margin-right:3px;}
+.pill-green{background:rgba(0,212,170,.12);color:var(--accent);}
+.pill-blue{background:rgba(59,130,246,.12);color:var(--accent2);}
+.pill-red{background:rgba(239,68,68,.12);color:var(--danger);}
+.pill-amber{background:rgba(245,158,11,.12);color:var(--warn);}
+.pill-gray{background:rgba(255,255,255,.06);color:var(--muted);}
+.winner-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-top:8px;}
+.winner-badge.green{background:rgba(0,212,170,.15);border:1px solid rgba(0,212,170,.3);color:var(--accent);}
+.winner-badge.blue{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:var(--accent2);}
+.winner-badge.purple{background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);color:var(--accent3);}
+.winner-badge.amber{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--warn);}
+
+/* COMPARISON MATRIX TABLE */
+.matrix-wrap{overflow-x:auto;margin-bottom:32px;}
+.matrix{width:100%;border-collapse:collapse;font-size:13px;min-width:800px;}
+.matrix th{padding:12px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--surface2);border-bottom:1px solid var(--border);text-align:center;white-space:nowrap;}
+.matrix th:first-child{text-align:left;}
+.matrix td{padding:11px 14px;border-bottom:1px solid var(--border);text-align:center;color:var(--text);}
+.matrix td:first-child{text-align:left;font-weight:500;color:var(--text);font-size:13px;}
+.matrix tr:hover td{background:rgba(255,255,255,.015);}
+.matrix tr:last-child td{border-bottom:none;}
+.check{color:var(--accent);font-size:15px;}
+.cross{color:var(--muted);}
+.partial{color:var(--warn);}
+.matrix .col-whoop{background:rgba(0,212,170,.04);}
+
+/* AC CHECKLIST */
+.ac-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.ac-item{display:flex;gap:12px;padding:14px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;align-items:flex-start;}
+.ac-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.ac-body{}
+.ac-title{font-weight:600;color:#fff;margin-bottom:3px;}
+.ac-desc{font-size:13px;color:var(--muted);}
+
+/* FOOTER */
+footer{background:var(--surface);border-top:1px solid var(--border);padding:28px 40px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted);}
+footer strong{color:var(--text);}
+
+@media(max-width:700px){
+  .hero,.page,footer{padding-left:20px;padding-right:20px;}
+  h1{font-size:26px;}
+  .metric-grid{grid-template-columns:1fr 1fr;}
+  .nav-strip{padding:0 20px;}
+  .comp-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">PBI #213 · Sprint 2 Spike Deliverable</div>
+  <h1>Whoop Wearable<br><span>Feature & Integration Guide</span></h1>
+  <p class="hero-sub">A comprehensive technical reference covering the Whoop 4.0 device capabilities, REST API integration patterns, OAuth flows, data models, and a competitive landscape analysis — produced as part of the Sprint 2 research spike.</p>
+  <div class="meta-row">
+    <span>📅 <strong>June 2026</strong></span>
+    <span>👤 <strong>Shehab Magdy</strong></span>
+    <span>🔖 <strong>ADO #213</strong></span>
+    <span>📋 <strong>Sprint 2 · thenxt-doo</strong></span>
+  </div>
+</div>
+
+<nav class="nav-strip">
+  <a href="#device" class="active">Device & Sensors</a>
+  <a href="#metrics">Health Metrics</a>
+  <a href="#api">REST API</a>
+  <a href="#auth">Auth & OAuth</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#limits">Limits</a>
+  <a href="#competitors">Competitors</a>
+  <a href="#verdict">Verdict</a>
+</nav>
+
+<div class="page">
+
+<!-- ══════ 01 DEVICE ══════ -->
+<section class="section" id="device">
+  <div class="section-header"><span class="section-num">01</span><h2>Device Overview & Sensors</h2></div>
+  <p class="lead">The Whoop 4.0 is a screenless, subscription-based wearable designed exclusively for continuous biometric monitoring. Released in 2021, it remains Whoop's flagship hardware platform. A Whoop MG (Muscular variant) and Whoop Body line extend placement beyond the wrist.</p>
+
+  <table class="info-table">
+    <thead><tr><th>Specification</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td>Form factor</td><td>Screenless flexible band — wrist, bicep, or body placement via accessories</td></tr>
+      <tr><td>Dimensions</td><td>44.7 × 17.5 × 9.7 mm (band unit); weighs ~22g without strap</td></tr>
+      <tr><td>Battery life</td><td>4–5 days continuous monitoring; unique slide-on battery pack charges while wearing</td></tr>
+      <tr><td>Water resistance</td><td>IP68 — waterproof up to 10 m; safe for swimming and showering</td></tr>
+      <tr><td>Connectivity</td><td>Bluetooth 5.0 LE — auto-syncs to iOS/Android companion app in background</td></tr>
+      <tr><td>Onboard memory</td><td>Up to 5 days of raw sensor data buffered for offline use</td></tr>
+      <tr><td>Companion platforms</td><td>iOS 16+ and Android 8+ (Pixel, Samsung Galaxy, OnePlus, most OEMs)</td></tr>
+      <tr><td>Subscription cost</td><td>From $30/month (or ~$239/year); hardware included with subscription</td></tr>
+      <tr><td>Developer program</td><td>Free registration at <code>developer.whoop.com</code>; OAuth app creation available to all members</td></tr>
+      <tr><td>Clinical validation</td><td>Multiple peer-reviewed studies confirming HRV and sleep staging accuracy; used by professional sports teams (NFL, NBA, MLB)</td></tr>
+      <tr><td>Data privacy</td><td>GDPR-compliant; EU user data stored in EU region; SOC 2 Type II certified</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Onboard Sensors — Whoop 4.0</h3>
+  <div class="metric-grid">
+    <div class="metric-card" style="--card-accent:#00d4aa">
+      <span class="metric-icon">💓</span>
+      <div class="metric-name">Photoplethysmography (PPG)</div>
+      <div class="metric-desc">5-LED optical array (green × 3 + red + infrared) for continuous heart rate, SpO₂, and HRV derivation. Green LEDs operate continuously; red/IR activate during sleep for SpO₂.</div>
+      <span class="metric-range">100 Hz continuous</span>
+    </div>
+    <div class="metric-card" style="--card-accent:#3b82f6">
+      <span class="metric-icon">📐</span>
+      <div class="metric-name">3-Axis Accelerometer</div>
+      <div class="metric-desc">Detects motion for activity classification, sleep position detection, and respiratory rate derivation (chest rise/fall). Also used to filter motion artifacts from PPG signal.</div>
+      <span class="metric-range">50 Hz continuous</span>
+    </div>
+    <div class="metric-card" style="--card-accent:#8b5cf6">
+      <span class="metric-icon">🌡️</span>
+      <div class="metric-name">Skin Temperature Sensor</div>
+      <div class="metric-desc">Continuous skin temperature measurement during sleep. Builds a 30-day personal baseline; deviations flag illness, hormonal changes, or poor recovery. New in Whoop 4.0 vs 3.0.</div>
+      <span class="metric-range">±0.1 °C accuracy</span>
+    </div>
+    <div class="metric-card" style="--card-accent:#f59e0b">
+      <span class="metric-icon">⚡</span>
+      <div class="metric-name">Galvanic Skin Response (EDA)</div>
+      <div class="metric-desc">Electrodermal activity sensor for stress detection and autonomic nervous system monitoring. Used to improve recovery score accuracy alongside HRV. Not exposed directly via API.</div>
+      <span class="metric-range">Continuous</span>
+    </div>
+    <div class="metric-card" style="--card-accent:#ef4444">
+      <span class="metric-icon">🫁</span>
+      <div class="metric-name">Blood Oxygen (SpO₂)</div>
+      <div class="metric-desc">Overnight oximetry using red/infrared LED ratio across multiple sleep cycles. Average reported as a single post-sleep value. Clinically useful for detecting sleep-disordered breathing.</div>
+      <span class="metric-range">Overnight sessions only</span>
+    </div>
+    <div class="metric-card" style="--card-accent:#10b981">
+      <span class="metric-icon">🔄</span>
+      <div class="metric-name">3-Axis Gyroscope</div>
+      <div class="metric-desc">Angular velocity sensor for precise movement detection, swim stroke counting, and improving sleep staging by distinguishing position changes from restlessness.</div>
+      <span class="metric-range">50 Hz continuous</span>
+    </div>
+  </div>
+
+  <h3>Whoop Platform Ecosystem</h3>
+  <table class="info-table">
+    <thead><tr><th>Product / Feature</th><th>Description</th><th>Availability</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Whoop 4.0 Band</strong></td><td>Core wrist-worn sensor unit</td><td>Current flagship</td></tr>
+      <tr><td><strong>Whoop Body</strong></td><td>Compression garments with embedded Whoop sensor pocket (shorts, bra, shirt)</td><td>Available now</td></tr>
+      <tr><td><strong>Whoop Coach (AI)</strong></td><td>GPT-powered coaching feature giving personalised recovery and training advice in-app</td><td>Available now</td></tr>
+      <tr><td><strong>Whoop Journal</strong></td><td>Daily behaviour tracking (alcohol, caffeine, supplements, stress) to correlate with recovery trends</td><td>Available now</td></tr>
+      <tr><td><strong>Stress Monitor</strong></td><td>Intraday stress score derived from HRV, EDA, and heart rate in the Whoop 4.0</td><td>Available now</td></tr>
+      <tr><td><strong>Whoop 5.0</strong></td><td>Next-generation device (rumoured — not yet announced at time of writing)</td><td>Unannounced</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════ 02 METRICS ══════ -->
+<section class="section" id="metrics">
+  <div class="section-header"><span class="section-num">02</span><h2>Health Metrics & Data Outputs</h2></div>
+  <div class="alert info"><span class="alert-icon">ℹ️</span><div>All computed metrics are available via the API as daily or per-session aggregates. Raw sensor data (PPG waveforms, raw accelerometer) is <strong>not</strong> exposed through the public API.</div></div>
+
+  <table class="info-table">
+    <thead><tr><th>Metric</th><th>Unit / Range</th><th>Update Freq.</th><th>Endpoint</th><th>Field</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Recovery Score</strong><br><span style="font-size:12px;color:var(--muted)">Daily readiness 0–100%</span></td><td>0–100%</td><td>Daily (post-sleep)</td><td><code>/v1/recovery</code></td><td><code>score.recovery_score</code></td></tr>
+      <tr><td><strong>HRV (RMSSD)</strong><br><span style="font-size:12px;color:var(--muted)">Root mean square of successive differences</span></td><td>ms (typically 20–120ms)</td><td>Daily</td><td><code>/v1/recovery</code></td><td><code>score.hrv_rmssd_milli</code></td></tr>
+      <tr><td><strong>Resting Heart Rate</strong><br><span style="font-size:12px;color:var(--muted)">Minimum HR during deepest sleep</span></td><td>bpm</td><td>Daily</td><td><code>/v1/recovery</code></td><td><code>score.resting_heart_rate</code></td></tr>
+      <tr><td><strong>Blood Oxygen (SpO₂)</strong></td><td>% (85–100%)</td><td>Daily (post-sleep)</td><td><code>/v1/recovery</code></td><td><code>score.spo2_percentage</code></td></tr>
+      <tr><td><strong>Skin Temperature Delta</strong></td><td>°C vs. personal baseline</td><td>Daily (post-sleep)</td><td><code>/v1/recovery</code></td><td><code>score.skin_temp_celsius</code></td></tr>
+      <tr><td><strong>Respiratory Rate</strong></td><td>rpm (typically 12–20)</td><td>Daily (post-sleep)</td><td><code>/v1/recovery</code></td><td><code>score.respiratory_rate</code></td></tr>
+      <tr><td><strong>Day Strain</strong></td><td>0–21 (Borg-derived)</td><td>Intraday (updated on sync)</td><td><code>/v1/cycle</code></td><td><code>score.strain</code></td></tr>
+      <tr><td><strong>Calories Burned</strong></td><td>kcal (as kilojoules in API)</td><td>Daily</td><td><code>/v1/cycle</code></td><td><code>score.kilojoule</code></td></tr>
+      <tr><td><strong>Sleep Performance %</strong></td><td>0–100%</td><td>Post-sleep</td><td><code>/v1/activity/sleep</code></td><td><code>score.sleep_performance_percentage</code></td></tr>
+      <tr><td><strong>Sleep Stages</strong><br><span style="font-size:12px;color:var(--muted)">Deep, REM, Light, Awake in milliseconds</span></td><td>Duration (ms)</td><td>Post-sleep</td><td><code>/v1/activity/sleep</code></td><td><code>score.stage_summary.*</code></td></tr>
+      <tr><td><strong>Workout Strain</strong></td><td>0–21 per activity</td><td>Post-workout</td><td><code>/v1/activity/workout</code></td><td><code>score.strain</code></td></tr>
+      <tr><td><strong>HR Zones (0–5)</strong></td><td>Duration (ms) per zone</td><td>Post-workout</td><td><code>/v1/activity/workout</code></td><td><code>score.zone_*_milli</code></td></tr>
+      <tr><td><strong>Sleep Cycle Count</strong></td><td>Count</td><td>Post-sleep</td><td><code>/v1/activity/sleep</code></td><td><code>score.stage_summary.sleep_cycle_count</code></td></tr>
+      <tr><td><strong>Average & Max HR (cycle)</strong></td><td>bpm</td><td>Daily</td><td><code>/v1/cycle</code></td><td><code>score.average_heart_rate</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert warn"><span class="alert-icon">⚠️</span><div>Whoop data is <strong>never real-time</strong>. All metrics are computed post-session and available only after the device syncs (typically within 5–10 minutes of waking or ending a workout). Architect your integration around scheduled pull, not live streaming.</div></div>
+
+  <h3>Data Granularity & Refresh Rates</h3>
+  <table class="info-table">
+    <thead><tr><th>Data Type</th><th>Granularity</th><th>Typical Availability</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Recovery metrics</td><td>One value per physiological cycle (day)</td><td>5–15 min after waking</td><td>Score only finalised after full sleep session scored</td></tr>
+      <tr><td>Sleep session</td><td>Per session (can include naps)</td><td>Immediately after sync post-sleep</td><td>Nap flag <code>nap: true</code> distinguishes from primary sleep</td></tr>
+      <tr><td>Workout session</td><td>Per activity; includes intraday HR data</td><td>Immediately after workout sync</td><td>Supports 50+ sport types (sport_id field)</td></tr>
+      <tr><td>Daily cycle</td><td>One per day (midnight to midnight in user timezone)</td><td>Updated on each sync</td><td>Strain accumulates continuously; read multiple times/day for intraday strain</td></tr>
+      <tr><td>Historical data</td><td>All data since device activation</td><td>Available via pagination</td><td>Use <code>next_token</code> cursor for bulk historical pulls</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════ 03 REST API ══════ -->
+<section class="section" id="api">
+  <div class="section-header"><span class="section-num">03</span><h2>REST API Reference</h2></div>
+  <div class="alert ok"><span class="alert-icon">✅</span><div>Base URL: <code>https://api.prod.whoop.com/developer/v1</code> · JSON responses · Bearer token authentication · API version: v1 (stable as of 2025)</div></div>
+
+  <div class="endpoint open">
+    <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="method get">GET</span><span class="endpoint-path">/user/profile/basic</span><span class="endpoint-desc">User profile and unit preferences</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Required scope: <code>read:profile</code></p>
+      <pre><span class="cmt">// Response 200 OK</span>
+{
+  <span class="key">"user_id"</span>: <span class="num">12345678</span>,
+  <span class="key">"email"</span>: <span class="str">"user@example.com"</span>,
+  <span class="key">"first_name"</span>: <span class="str">"Alex"</span>,
+  <span class="key">"last_name"</span>: <span class="str">"Smith"</span>,
+  <span class="key">"unit_system"</span>: <span class="str">"imperial"</span>,   <span class="cmt">// or "metric"</span>
+  <span class="key">"created_at"</span>: <span class="str">"2023-01-15T08:00:00.000Z"</span>
+}</pre>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="method get">GET</span><span class="endpoint-path">/recovery</span><span class="endpoint-desc">HRV, RHR, SpO₂, skin temp, recovery score</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Required scope: <code>read:recovery</code> · Query params: <code>limit</code>, <code>start</code>, <code>end</code> (ISO 8601), <code>nextToken</code></p>
+      <pre>{
+  <span class="key">"records"</span>: [{
+    <span class="key">"cycle_id"</span>: <span class="num">93845621</span>,
+    <span class="key">"sleep_id"</span>: <span class="num">77361284</span>,
+    <span class="key">"user_id"</span>: <span class="num">12345678</span>,
+    <span class="key">"created_at"</span>: <span class="str">"2026-06-02T14:00:00.000Z"</span>,
+    <span class="key">"score_state"</span>: <span class="str">"SCORED"</span>,  <span class="cmt">// SCORED | PENDING_SLEEP | UNSCORABLE</span>
+    <span class="key">"score"</span>: {
+      <span class="key">"user_calibrating"</span>: <span class="kw">false</span>,
+      <span class="key">"recovery_score"</span>: <span class="num">78</span>,
+      <span class="key">"resting_heart_rate"</span>: <span class="num">52</span>,
+      <span class="key">"hrv_rmssd_milli"</span>: <span class="num">64.8</span>,
+      <span class="key">"spo2_percentage"</span>: <span class="num">97.4</span>,
+      <span class="key">"skin_temp_celsius"</span>: <span class="num">0.3</span>
+    }
+  }],
+  <span class="key">"next_token"</span>: <span class="str">"eyJhbGciOi..."</span>  <span class="cmt">// null when no more pages</span>
+}</pre>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="method get">GET</span><span class="endpoint-path">/cycle</span><span class="endpoint-desc">Daily strain, calories, average/max HR</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Required scope: <code>read:cycles</code></p>
+      <pre>{
+  <span class="key">"records"</span>: [{
+    <span class="key">"id"</span>: <span class="num">93845620</span>,
+    <span class="key">"start"</span>: <span class="str">"2026-06-01T22:00:00.000Z"</span>,
+    <span class="key">"end"</span>: <span class="str">"2026-06-02T21:59:59.000Z"</span>,
+    <span class="key">"score_state"</span>: <span class="str">"SCORED"</span>,
+    <span class="key">"score"</span>: {
+      <span class="key">"strain"</span>: <span class="num">12.4</span>,
+      <span class="key">"kilojoule"</span>: <span class="num">8234.5</span>,   <span class="cmt">// divide by 4.184 for kcal</span>
+      <span class="key">"average_heart_rate"</span>: <span class="num">67</span>,
+      <span class="key">"max_heart_rate"</span>: <span class="num">151</span>
+    }
+  }]
+}</pre>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="method get">GET</span><span class="endpoint-path">/activity/sleep</span><span class="endpoint-desc">Sleep sessions with stage breakdown and performance</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Required scope: <code>read:sleep</code> · Nap flag distinguishes naps from primary sleep sessions</p>
+      <pre>{
+  <span class="key">"records"</span>: [{
+    <span class="key">"id"</span>: <span class="num">77361284</span>,
+    <span class="key">"nap"</span>: <span class="kw">false</span>,
+    <span class="key">"start"</span>: <span class="str">"2026-06-01T23:15:00.000Z"</span>,
+    <span class="key">"end"</span>: <span class="str">"2026-06-02T07:05:00.000Z"</span>,
+    <span class="key">"score"</span>: {
+      <span class="key">"stage_summary"</span>: {
+        <span class="key">"total_in_bed_time_milli"</span>: <span class="num">28800000</span>,
+        <span class="key">"total_awake_time_milli"</span>: <span class="num">1800000</span>,
+        <span class="key">"total_light_sleep_time_milli"</span>: <span class="num">10800000</span>,
+        <span class="key">"total_slow_wave_sleep_time_milli"</span>: <span class="num">7200000</span>,
+        <span class="key">"total_rem_sleep_time_milli"</span>: <span class="num">7200000</span>,
+        <span class="key">"sleep_cycle_count"</span>: <span class="num">4</span>,
+        <span class="key">"disturbance_count"</span>: <span class="num">2</span>
+      },
+      <span class="key">"sleep_performance_percentage"</span>: <span class="num">87</span>,
+      <span class="key">"sleep_consistency_percentage"</span>: <span class="num">82</span>,
+      <span class="key">"sleep_efficiency_percentage"</span>: <span class="num">94</span>,
+      <span class="key">"respiratory_rate"</span>: <span class="num">14.2</span>
+    }
+  }]
+}</pre>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="method get">GET</span><span class="endpoint-path">/activity/workout</span><span class="endpoint-desc">Individual workout sessions with zone breakdown and sport type</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Required scope: <code>read:workout</code> · Sport ID 71 = Running, 0 = Activity (generic), 32 = Cycling, 57 = Swimming</p>
+      <pre>{
+  <span class="key">"records"</span>: [{
+    <span class="key">"id"</span>: <span class="num">88123456</span>,
+    <span class="key">"sport_id"</span>: <span class="num">71</span>,
+    <span class="key">"start"</span>: <span class="str">"2026-06-02T06:30:00.000Z"</span>,
+    <span class="key">"end"</span>: <span class="str">"2026-06-02T07:18:00.000Z"</span>,
+    <span class="key">"score"</span>: {
+      <span class="key">"strain"</span>: <span class="num">9.3</span>,
+      <span class="key">"average_heart_rate"</span>: <span class="num">148</span>,
+      <span class="key">"max_heart_rate"</span>: <span class="num">172</span>,
+      <span class="key">"kilojoule"</span>: <span class="num">2300</span>,
+      <span class="key">"percent_recorded"</span>: <span class="num">100</span>,
+      <span class="key">"zone_zero_milli"</span>: <span class="num">120000</span>,
+      <span class="key">"zone_one_milli"</span>: <span class="num">600000</span>,
+      <span class="key">"zone_two_milli"</span>: <span class="num">900000</span>,
+      <span class="key">"zone_three_milli"</span>: <span class="num">1200000</span>,
+      <span class="key">"zone_four_milli"</span>: <span class="num">900000</span>,
+      <span class="key">"zone_five_milli"</span>: <span class="num">300000</span>
+    }
+  }]
+}</pre>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="method get">GET</span><span class="endpoint-path">/body_measurement</span><span class="endpoint-desc">Height, weight, and max HR used in calorie calculations</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Required scope: <code>read:body_measurement</code></p>
+      <pre>{
+  <span class="key">"height_meter"</span>: <span class="num">1.80</span>,
+  <span class="key">"weight_kilogram"</span>: <span class="num">80.5</span>,
+  <span class="key">"max_heart_rate"</span>: <span class="num">192</span>
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ 04 AUTH ══════ -->
+<section class="section" id="auth">
+  <div class="section-header"><span class="section-num">04</span><h2>Authentication & OAuth 2.0 Flow</h2></div>
+  <p class="lead">Whoop uses the standard <strong>OAuth 2.0 Authorization Code flow</strong>. Users explicitly grant your application access. Tokens expire after 1 hour; refresh tokens allow silent renewal for up to ~30 days.</p>
+
+  <div class="flow-diagram">
+    <div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Register your application</div><div class="step-detail">Visit <code>developer.whoop.com</code> → Create App. Set your redirect URI (must be HTTPS in production). Receive <code>client_id</code> and <code>client_secret</code>. Keep the secret server-side only.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Redirect user to Whoop authorization endpoint</div><div class="step-detail"><code>GET https://api.prod.whoop.com/oauth/oauth2/auth?client_id=&lt;ID&gt;&amp;redirect_uri=&lt;URI&gt;&amp;response_type=code&amp;scope=read:recovery+read:cycles+read:sleep+read:workout+read:profile&amp;state=&lt;CSRF_TOKEN&gt;</code></div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-content"><div class="step-title">User authenticates and grants consent</div><div class="step-detail">Whoop's hosted consent screen shows which scopes your app requests. User logs in with their Whoop credentials and clicks "Allow".</div></div></div>
+      <div class="flow-step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Receive authorization code at redirect URI</div><div class="step-detail">Whoop redirects to <code>https://yourapp.com/callback?code=AUTH_CODE&amp;state=CSRF_TOKEN</code>. Verify <code>state</code> matches to prevent CSRF attacks.</div></div></div>
+      <div class="flow-step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Exchange code for access + refresh tokens</div><div class="step-detail"><code>POST https://api.prod.whoop.com/oauth/oauth2/token</code> with <code>grant_type=authorization_code</code>, code, client_id, client_secret, redirect_uri. Server-side only.</div></div></div>
+      <div class="flow-step"><div class="step-num">6</div><div class="step-content"><div class="step-title">Store tokens securely; implement silent refresh</div><div class="step-detail">Access token TTL = 3600s. Use <code>grant_type=refresh_token</code> before expiry. Handle 401 responses by refreshing and retrying the original request. Refresh tokens expire in ~30 days — prompt re-auth when expired.</div></div></div>
+      <div class="flow-step"><div class="step-num">7</div><div class="step-content"><div class="step-title">Proxy all API calls through your backend</div><div class="step-detail">Include <code>Authorization: Bearer &lt;access_token&gt;</code> on all requests. Never expose tokens or client_secret to frontend code.</div></div></div>
+    </div>
+  </div>
+
+  <h3>OAuth Scopes</h3>
+  <table class="info-table">
+    <thead><tr><th>Scope</th><th>Type</th><th>Data Granted</th></tr></thead>
+    <tbody>
+      <tr><td><code>read:profile</code></td><td><span class="scope-tag scope-read">Read</span></td><td>Name, email, timezone, unit preferences</td></tr>
+      <tr><td><code>read:recovery</code></td><td><span class="scope-tag scope-read">Read</span></td><td>Recovery score, HRV, RHR, SpO₂, skin temperature, respiratory rate</td></tr>
+      <tr><td><code>read:cycles</code></td><td><span class="scope-tag scope-read">Read</span></td><td>Daily strain, total calories, average/max heart rate per cycle</td></tr>
+      <tr><td><code>read:sleep</code></td><td><span class="scope-tag scope-read">Read</span></td><td>Sleep sessions, stage breakdown (Deep/REM/Light/Awake), sleep performance score</td></tr>
+      <tr><td><code>read:workout</code></td><td><span class="scope-tag scope-read">Read</span></td><td>Workout sessions, sport type, HR zone breakdown, workout strain</td></tr>
+      <tr><td><code>read:body_measurement</code></td><td><span class="scope-tag scope-read">Read</span></td><td>Height, weight, max HR — used in calorie calculation validation</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════ 05 ARCHITECTURE ══════ -->
+<section class="section" id="architecture">
+  <div class="section-header"><span class="section-num">05</span><h2>Recommended Integration Architecture</h2></div>
+  <p class="lead">Because Whoop data is batch-oriented (post-session aggregates), the correct pattern is a <strong>scheduled backend pull</strong> with caching — never direct browser-to-Whoop calls.</p>
+
+  <div class="flow-diagram">
+    <div style="display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;gap:8px;align-items:center;text-align:center;margin-bottom:24px;">
+      <div style="background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.25);border-radius:10px;padding:16px;">
+        <div style="font-size:24px;margin-bottom:8px;">📱</div>
+        <div style="font-weight:500;font-size:13px;color:#fff;">Whoop 4.0</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Syncs via BT to Whoop Cloud</div>
+      </div>
+      <div style="color:var(--muted);font-size:22px;">→</div>
+      <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:10px;padding:16px;">
+        <div style="font-size:24px;margin-bottom:8px;">⚙️</div>
+        <div style="font-weight:500;font-size:13px;color:#fff;">Your Backend</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Cron job pulls Whoop API<br>every 15 min. Stores in DB.<br>Handles token refresh.</div>
+      </div>
+      <div style="color:var(--muted);font-size:22px;">→</div>
+      <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:10px;padding:16px;">
+        <div style="font-size:24px;margin-bottom:8px;">🖥️</div>
+        <div style="font-weight:500;font-size:13px;color:#fff;">Your Frontend</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Fetches <em>your</em> API only.<br>Never touches Whoop directly.</div>
+      </div>
+    </div>
+    <div style="padding-top:16px;border-top:1px solid var(--border);">
+      <p style="font-size:13px;color:var(--muted);">Recommended pull schedule: every <strong>15 minutes</strong> during active hours (06:00–23:00 user timezone), every <strong>60 minutes</strong> overnight. New recovery/sleep data appears 5–15 minutes after device sync post-waking.</p>
+    </div>
+  </div>
+
+  <div class="alert warn"><span class="alert-icon">⚠️</span><div>Never store <code>client_secret</code> or user tokens in frontend code or environment variables accessible to the browser. Proxy <em>all</em> Whoop API calls through your backend. Token refresh must happen server-side.</div></div>
+</section>
+
+<!-- ══════ 06 LIMITS ══════ -->
+<section class="section" id="limits">
+  <div class="section-header"><span class="section-num">06</span><h2>Limits, Constraints & Known Issues</h2></div>
+
+  <table class="info-table">
+    <thead><tr><th>Constraint</th><th>Detail</th><th>Impact</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Rate Limits</strong></td><td>~100 requests/min per user token (undocumented; empirically observed)</td><td>Medium — implement exponential backoff; cache responses</td></tr>
+      <tr><td><strong>No Real-Time Data</strong></td><td>All metrics are post-session aggregates; no live HR or HRV streaming</td><td>High — live dashboards not possible; architect around batch pull</td></tr>
+      <tr><td><strong>No Raw Sensor Data</strong></td><td>PPG waveforms, raw accelerometer, gyroscope not in the public API</td><td>High — custom algorithms (e.g. alternative HRV methods) not possible via API</td></tr>
+      <tr><td><strong>Subscription Dependency</strong></td><td>Users must maintain an active Whoop membership ($30/month); lapsed accounts stop syncing</td><td>Medium — adds ongoing user cost; may cause churn-driven data gaps</td></tr>
+      <tr><td><strong>No Sandbox / Test Environment</strong></td><td>Whoop does not offer a sandbox API; testing requires a real device and account</td><td>Medium — use mock data generators for CI; manual testing on real device only</td></tr>
+      <tr><td><strong>Cursor-Based Pagination</strong></td><td>All list endpoints use <code>next_token</code> cursor pagination; no offset-based access</td><td>Low — implement recursive next_token fetching for historical queries</td></tr>
+      <tr><td><strong>Access Token TTL: 1 hour</strong></td><td>Access tokens expire in 3600s; refresh tokens expire in ~30 days</td><td>Low — implement silent refresh; handle 401 → refresh → retry loop</td></tr>
+      <tr><td><strong>Webhook Support: Limited Beta</strong></td><td>Push webhooks announced but not generally available as of mid-2025; must poll</td><td>Medium — no event-driven architecture possible yet; must schedule pulls</td></tr>
+      <tr><td><strong>EU GDPR Compliance</strong></td><td>EU user data stored in EU; re-storing biometrics in your DB requires explicit GDPR consent</td><td>High for EU-facing healthcare apps — data minimisation and DPA required</td></tr>
+      <tr><td><strong>score_state: UNSCORABLE</strong></td><td>Some cycles lack a score if sleep was too short (&lt;1 hour) or device wasn't worn</td><td>Low — handle null/UNSCORABLE state in all metric reads</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════ 07 COMPETITORS ══════ -->
+<section class="section" id="competitors">
+  <div class="section-header"><span class="section-num">07</span><h2>Competitive Landscape</h2></div>
+  <p class="lead">The following analysis compares Whoop 4.0 against the leading wearable competitors based on hardware sensors, health metric depth, developer API access, pricing, and suitability for healthcare/wellness application integration. Data sourced from manufacturer specifications, Tom's Guide 2026 testing, and Whoop's own documentation.</p>
+
+  <!-- COMPETITOR CARDS -->
+  <div class="comp-grid">
+
+    <!-- WHOOP -->
+    <div class="comp-card whoop-card">
+      <div class="comp-head">
+        <div class="comp-logo" style="background:rgba(0,212,170,.15);font-size:22px;">⬜</div>
+        <div>
+          <div class="comp-name">Whoop 4.0</div>
+          <div class="comp-model">Whoop, Inc.</div>
+          <div class="winner-badge green">✓ Our Spike Target</div>
+        </div>
+        <div class="comp-price">
+          <div class="comp-price-main">$30/mo</div>
+          <div class="comp-price-sub">HW included</div>
+        </div>
+      </div>
+      <div class="comp-body">
+        <div class="comp-rows">
+          <div class="comp-row"><div class="comp-key">Form factor</div><div class="comp-val">Screenless band (wrist/body)</div></div>
+          <div class="comp-row"><div class="comp-key">Battery</div><div class="comp-val">4–5 days; charges while worn</div></div>
+          <div class="comp-row"><div class="comp-key">HRV method</div><div class="comp-val"><span class="pill pill-green">RMSSD (gold standard)</span></div></div>
+          <div class="comp-row"><div class="comp-key">Key metrics</div><div class="comp-val">Recovery, Strain, Sleep, HRV, RHR, SpO₂, Skin temp, Respiratory rate, Stress</div></div>
+          <div class="comp-row"><div class="comp-key">Public API</div><div class="comp-val"><span class="pill pill-green">Yes — REST API v1</span></div></div>
+          <div class="comp-row"><div class="comp-key">GPS</div><div class="comp-val"><span class="pill pill-red">No onboard GPS</span></div></div>
+          <div class="comp-row"><div class="comp-key">Display</div><div class="comp-val"><span class="pill pill-amber">None (screenless)</span></div></div>
+          <div class="comp-row"><div class="comp-key">Best for</div><div class="comp-val">Recovery-focused athletes, clinical wellness, 24/7 biometric logging</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OURA RING 4 -->
+    <div class="comp-card">
+      <div class="comp-head">
+        <div class="comp-logo" style="background:rgba(139,92,246,.15);font-size:22px;">💍</div>
+        <div>
+          <div class="comp-name">Oura Ring 4</div>
+          <div class="comp-model">Oura Health</div>
+          <div class="winner-badge purple">Best wearability</div>
+        </div>
+        <div class="comp-price">
+          <div class="comp-price-main">$299–$549</div>
+          <div class="comp-price-sub">+ $5.99/mo app</div>
+        </div>
+      </div>
+      <div class="comp-body">
+        <div class="comp-rows">
+          <div class="comp-row"><div class="comp-key">Form factor</div><div class="comp-val">Smart ring (finger-worn)</div></div>
+          <div class="comp-row"><div class="comp-key">Battery</div><div class="comp-val">5–8 days</div></div>
+          <div class="comp-row"><div class="comp-key">HRV method</div><div class="comp-val"><span class="pill pill-green">RMSSD (nightly + daytime)</span></div></div>
+          <div class="comp-row"><div class="comp-key">Key metrics</div><div class="comp-val">Readiness, Sleep score, HRV, RHR, SpO₂, Skin temp, Respiratory rate, Activity, Stress (daytime)</div></div>
+          <div class="comp-row"><div class="comp-key">Public API</div><div class="comp-val"><span class="pill pill-green">Yes — REST API v2</span></div></div>
+          <div class="comp-row"><div class="comp-key">GPS</div><div class="comp-val"><span class="pill pill-red">No onboard GPS</span></div></div>
+          <div class="comp-row"><div class="comp-key">Display</div><div class="comp-val"><span class="pill pill-amber">None (ring form factor)</span></div></div>
+          <div class="comp-row"><div class="comp-key">Best for</div><div class="comp-val">Discreet wear, sleep-focused users, finger pulse accuracy, menstrual cycle tracking</div></div>
+          <div class="comp-row"><div class="comp-key">vs Whoop</div><div class="comp-val">Similar metrics depth; Oura API is more developer-friendly (better docs, sandbox planned); Oura wins on sleep accuracy per independent studies; Whoop wins on daytime strain and workout tracking</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPLE WATCH SERIES 10 -->
+    <div class="comp-card">
+      <div class="comp-head">
+        <div class="comp-logo" style="background:rgba(255,255,255,.08);font-size:22px;">⌚</div>
+        <div>
+          <div class="comp-name">Apple Watch Series 10</div>
+          <div class="comp-model">Apple Inc.</div>
+          <div class="winner-badge blue">Best ecosystem</div>
+        </div>
+        <div class="comp-price">
+          <div class="comp-price-main">$399+</div>
+          <div class="comp-price-sub">No subscription</div>
+        </div>
+      </div>
+      <div class="comp-body">
+        <div class="comp-rows">
+          <div class="comp-row"><div class="comp-key">Form factor</div><div class="comp-val">Smartwatch (wrist)</div></div>
+          <div class="comp-row"><div class="comp-key">Battery</div><div class="comp-val">18–36 hours (low-power mode)</div></div>
+          <div class="comp-row"><div class="comp-key">HRV method</div><div class="comp-val"><span class="pill pill-amber">SDNN (less granular than RMSSD)</span></div></div>
+          <div class="comp-row"><div class="comp-key">Key metrics</div><div class="comp-val">Heart rate, ECG, SpO₂, sleep stages, crash detection, fall detection, sleep apnea detection, AFib history, body temperature (Women's Health)</div></div>
+          <div class="comp-row"><div class="comp-key">Public API</div><div class="comp-val"><span class="pill pill-amber">HealthKit (iOS only, no web API)</span></div></div>
+          <div class="comp-row"><div class="comp-key">GPS</div><div class="comp-val"><span class="pill pill-green">Yes — onboard GPS + L1/L5</span></div></div>
+          <div class="comp-row"><div class="comp-key">Display</div><div class="comp-val">Always-on OLED, 2000 nits</div></div>
+          <div class="comp-row"><div class="comp-key">Best for</div><div class="comp-val">iPhone users, general health + smartwatch features, ECG, emergency SOS</div></div>
+          <div class="comp-row"><div class="comp-key">vs Whoop</div><div class="comp-val">No public REST API — HealthKit limits integration to native iOS apps. Better for consumer features (ECG, crash detection, payments). Worse for recovery-focused analytics and developer-accessible web integrations.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GARMIN FENIX 8 -->
+    <div class="comp-card">
+      <div class="comp-head">
+        <div class="comp-logo" style="background:rgba(59,130,246,.15);font-size:22px;">🧭</div>
+        <div>
+          <div class="comp-name">Garmin Fenix 8 / Forerunner 965</div>
+          <div class="comp-model">Garmin Ltd.</div>
+          <div class="winner-badge blue">Best for athletes</div>
+        </div>
+        <div class="comp-price">
+          <div class="comp-price-main">$299–$999</div>
+          <div class="comp-price-sub">No subscription</div>
+        </div>
+      </div>
+      <div class="comp-body">
+        <div class="comp-rows">
+          <div class="comp-row"><div class="comp-key">Form factor</div><div class="comp-val">Sport smartwatch (wrist)</div></div>
+          <div class="comp-row"><div class="comp-key">Battery</div><div class="comp-val">18 days (smartwatch) / 29h GPS</div></div>
+          <div class="comp-row"><div class="comp-key">HRV method</div><div class="comp-val"><span class="pill pill-green">RMSSD nightly (HRV Status)</span></div></div>
+          <div class="comp-row"><div class="comp-key">Key metrics</div><div class="comp-val">Body Battery, VO₂max, Training Load, Training Readiness, HRV Status, Sleep, SpO₂, Stress, Recovery time, Lactate threshold</div></div>
+          <div class="comp-row"><div class="comp-key">Public API</div><div class="comp-val"><span class="pill pill-green">Garmin Health API (enterprise)</span><span class="pill pill-amber">Connect IQ (limited)</span></div></div>
+          <div class="comp-row"><div class="comp-key">GPS</div><div class="comp-val"><span class="pill pill-green">Multi-band GPS (L1/L5)</span></div></div>
+          <div class="comp-row"><div class="comp-key">Display</div><div class="comp-val">MIP transflective / AMOLED</div></div>
+          <div class="comp-row"><div class="comp-key">Best for</div><div class="comp-val">Endurance athletes, outdoor navigation, triathlon, VO₂max tracking, long-haul battery</div></div>
+          <div class="comp-row"><div class="comp-key">vs Whoop</div><div class="comp-val">Garmin Health API requires enterprise partnership agreement — not freely available. Richer sport and GPS data; comparable HRV accuracy. Whoop wins on recovery-specific depth and open REST API access.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SAMSUNG GALAXY WATCH 7 -->
+    <div class="comp-card">
+      <div class="comp-head">
+        <div class="comp-logo" style="background:rgba(245,158,11,.15);font-size:22px;">💛</div>
+        <div>
+          <div class="comp-name">Samsung Galaxy Watch 7</div>
+          <div class="comp-model">Samsung Electronics</div>
+          <div class="winner-badge amber">Best Android value</div>
+        </div>
+        <div class="comp-price">
+          <div class="comp-price-main">$299</div>
+          <div class="comp-price-sub">No subscription</div>
+        </div>
+      </div>
+      <div class="comp-body">
+        <div class="comp-rows">
+          <div class="comp-row"><div class="comp-key">Form factor</div><div class="comp-val">Smartwatch (wrist)</div></div>
+          <div class="comp-row"><div class="comp-key">Battery</div><div class="comp-val">40 hours (smartwatch mode)</div></div>
+          <div class="comp-row"><div class="comp-key">HRV method</div><div class="comp-val"><span class="pill pill-amber">SDNN via BioActive sensor</span></div></div>
+          <div class="comp-row"><div class="comp-key">Key metrics</div><div class="comp-val">Sleep apnea detection, Energy Score, SpO₂, ECG, Body Composition (BIA), Irregular Heart Rhythm, Skin temp, Blood Pressure (select regions)</div></div>
+          <div class="comp-row"><div class="comp-key">Public API</div><div class="comp-val"><span class="pill pill-green">Samsung Health SDK</span><span class="pill pill-amber">Android only</span></div></div>
+          <div class="comp-row"><div class="comp-key">GPS</div><div class="comp-val"><span class="pill pill-green">Yes — multi-band GPS</span></div></div>
+          <div class="comp-row"><div class="comp-key">Display</div><div class="comp-val">Super AMOLED, 2000 nits</div></div>
+          <div class="comp-row"><div class="comp-key">Best for</div><div class="comp-val">Android users wanting smartwatch + health features; body composition; sleep apnea</div></div>
+          <div class="comp-row"><div class="comp-key">vs Whoop</div><div class="comp-val">Samsung Health SDK is Android-only with no web REST API. Sleep apnea detection is a unique differentiator vs Whoop. Body composition (BIA) is unique. Whoop's recovery algorithm is more clinically validated.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FITBIT CHARGE 6 -->
+    <div class="comp-card">
+      <div class="comp-head">
+        <div class="comp-logo" style="background:rgba(16,185,129,.15);font-size:22px;">📈</div>
+        <div>
+          <div class="comp-name">Fitbit Charge 6</div>
+          <div class="comp-model">Google (Fitbit)</div>
+          <div class="winner-badge green">Best mass-market</div>
+        </div>
+        <div class="comp-price">
+          <div class="comp-price-main">$159</div>
+          <div class="comp-price-sub">Fitbit Premium optional</div>
+        </div>
+      </div>
+      <div class="comp-body">
+        <div class="comp-rows">
+          <div class="comp-row"><div class="comp-key">Form factor</div><div class="comp-val">Fitness band (wrist)</div></div>
+          <div class="comp-row"><div class="comp-key">Battery</div><div class="comp-val">7 days (5h GPS mode)</div></div>
+          <div class="comp-row"><div class="comp-key">HRV method</div><div class="comp-val"><span class="pill pill-amber">RMSSD (nightly only, Premium)</span></div></div>
+          <div class="comp-row"><div class="comp-key">Key metrics</div><div class="comp-val">Daily Readiness Score, Sleep score, SpO₂, HRV, Stress (EDA scan), Active Zone Minutes, GPS workout tracking</div></div>
+          <div class="comp-row"><div class="comp-key">Public API</div><div class="comp-val"><span class="pill pill-green">Fitbit Web API (REST)</span></div></div>
+          <div class="comp-row"><div class="comp-key">GPS</div><div class="comp-val"><span class="pill pill-green">Yes — onboard GPS</span></div></div>
+          <div class="comp-row"><div class="comp-key">Display</div><div class="comp-val">1.04" AMOLED touchscreen</div></div>
+          <div class="comp-row"><div class="comp-key">Best for</div><div class="comp-val">General wellness tracking, step counting, casual fitness, Google Maps integration</div></div>
+          <div class="comp-row"><div class="comp-key">vs Whoop</div><div class="comp-val">Fitbit Web API is well-documented and free (no enterprise agreement). Readiness Score is conceptually similar to Whoop Recovery. Whoop's recovery algorithm is clinically superior; Fitbit is more accessible for casual users and has a display.</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /comp-grid -->
+
+  <!-- COMPARISON MATRIX -->
+  <h3>Feature Comparison Matrix</h3>
+  <div class="matrix-wrap">
+    <table class="matrix">
+      <thead>
+        <tr>
+          <th style="text-align:left">Feature</th>
+          <th class="col-whoop">Whoop 4.0</th>
+          <th>Oura Ring 4</th>
+          <th>Apple Watch S10</th>
+          <th>Garmin Fenix 8</th>
+          <th>Galaxy Watch 7</th>
+          <th>Fitbit Charge 6</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>HRV (RMSSD)</td><td class="col-whoop"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="partial">~ (SDNN)</span></td><td><span class="check">✓</span></td><td><span class="partial">~ (SDNN)</span></td><td><span class="partial">~ (Premium)</span></td></tr>
+        <tr><td>Resting Heart Rate</td><td class="col-whoop"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+        <tr><td>Sleep Stage Breakdown</td><td class="col-whoop"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+        <tr><td>Blood Oxygen (SpO₂)</td><td class="col-whoop"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+        <tr><td>Skin Temperature</td><td class="col-whoop"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="partial">~ (Women's Health only)</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>Respiratory Rate</td><td class="col-whoop"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+        <tr><td>Recovery / Readiness Score</td><td class="col-whoop"><span class="check">✓ (Recovery)</span></td><td><span class="check">✓ (Readiness)</span></td><td><span class="cross">✗</span></td><td><span class="check">✓ (Body Battery)</span></td><td><span class="check">✓ (Energy Score)</span></td><td><span class="partial">~ (Readiness, Premium)</span></td></tr>
+        <tr><td>Daily Strain / Load</td><td class="col-whoop"><span class="check">✓ (Strain 0–21)</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓ (Training Load)</span></td><td><span class="cross">✗</span></td><td><span class="partial">~ (Active Zone Min)</span></td></tr>
+        <tr><td>ECG / AFib Detection</td><td class="col-whoop"><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+        <tr><td>Sleep Apnea Detection</td><td class="col-whoop"><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>GPS (onboard)</td><td class="col-whoop"><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+        <tr><td>Display / Screen</td><td class="col-whoop"><span class="cross">✗ (screenless)</span></td><td><span class="cross">✗ (ring)</span></td><td><span class="check">✓ AMOLED</span></td><td><span class="check">✓ AMOLED/MIP</span></td><td><span class="check">✓ AMOLED</span></td><td><span class="check">✓ AMOLED</span></td></tr>
+        <tr><td>Public REST API (web)</td><td class="col-whoop"><span class="check">✓ Open API</span></td><td><span class="check">✓ Open API</span></td><td><span class="cross">✗ (HealthKit only)</span></td><td><span class="partial">~ (Enterprise)</span></td><td><span class="partial">~ (Android SDK)</span></td><td><span class="check">✓ Open API</span></td></tr>
+        <tr><td>No subscription required</td><td class="col-whoop"><span class="cross">✗ ($30/mo)</span></td><td><span class="partial">~ ($5.99/mo app)</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="partial">~ (Premium optional)</span></td></tr>
+        <tr><td>Galvanic Skin Response</td><td class="col-whoop"><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="partial">~ (EDA spot-check)</span></td></tr>
+        <tr><td>Body Composition (BIA)</td><td class="col-whoop"><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>Battery life</td><td class="col-whoop">4–5 days</td><td>5–8 days</td><td>18–36h</td><td>18 days</td><td>40h</td><td>7 days</td></tr>
+        <tr><td>Wear-while-charging</td><td class="col-whoop"><span class="check">✓ (slide-on pack)</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>IP water resistance</td><td class="col-whoop">IP68 (10m)</td><td>IP68 (100m)</td><td>IP68 (50m)</td><td>IP68 (10ATM)</td><td>IP68 (5ATM)</td><td>IP68 (50m)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert info"><span class="alert-icon">ℹ️</span><div><strong>Integration verdict on competitors:</strong> For a web-accessible REST API with biometric depth, <strong>Whoop and Oura Ring</strong> are the clear leaders. Fitbit's Web API is also strong but the device is consumer-grade with less clinical depth. Garmin requires an enterprise partnership. Apple Watch and Samsung Galaxy Watch are locked to their respective mobile ecosystems (HealthKit / Health SDK), making them unsuitable for cross-platform web integrations.</div></div>
+
+  <h3>Which Wearable Should We Integrate?</h3>
+  <table class="info-table">
+    <thead><tr><th>Use Case</th><th>Recommended Device</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td>Recovery-focused wellness dashboard</td><td><strong>Whoop 4.0</strong></td><td>Deepest recovery metrics, open REST API, continuous HRV monitoring</td></tr>
+      <tr><td>Sleep quality tracking</td><td><strong>Oura Ring 4</strong></td><td>Superior sleep staging accuracy in peer studies; comfortable for sleep</td></tr>
+      <tr><td>Cardiology / ECG features</td><td><strong>Apple Watch S10</strong></td><td>Only FDA-cleared ECG + AFib + sleep apnea on a consumer device</td></tr>
+      <tr><td>Endurance / outdoor athletes</td><td><strong>Garmin Fenix 8</strong></td><td>Multi-band GPS, VO₂max, Training Load, 18-day battery</td></tr>
+      <tr><td>Multi-device support (lowest friction)</td><td><strong>Fitbit Charge 6</strong></td><td>Open REST API, mainstream price, Google ecosystem</td></tr>
+      <tr><td>Body composition analytics</td><td><strong>Samsung Galaxy Watch 7</strong></td><td>Only major wearable with body fat % via BIA sensor</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════ 08 VERDICT ══════ -->
+<section class="section" id="verdict">
+  <div class="section-header"><span class="section-num">08</span><h2>Spike Verdict & Recommendations</h2></div>
+
+  <div class="alert ok"><span class="alert-icon">✅</span><div><strong>Go recommendation:</strong> Whoop is technically feasible and architecturally sound for integration. The REST API is stable, well-documented, and covers all key health metrics. The primary business constraint is the user subscription requirement ($30/month). We recommend a phased approach: MVP with mock data, then a live pilot with 5–10 opted-in users.</div></div>
+
+  <table class="info-table" style="margin-top:20px;">
+    <thead><tr><th>Work Item</th><th>Effort Estimate</th></tr></thead>
+    <tbody>
+      <tr><td>OAuth integration (connect flow + token management + refresh)</td><td>3–5 days</td></tr>
+      <tr><td>Scheduled data sync service (backend, DB schema, caching)</td><td>5–8 days</td></tr>
+      <tr><td>Frontend metrics dashboard (3–5 metrics, charts)</td><td>4–6 days</td></tr>
+      <tr><td>GDPR consent, data minimisation, DPA review</td><td>2–3 days</td></tr>
+      <tr><td>QA: integration tests, mock data mode, error handling</td><td>3–4 days</td></tr>
+      <tr><td><strong>Total MVP integration estimate</strong></td><td><strong>~3–4 sprints</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:24px;">Open Questions for Product Team</h3>
+  <ul style="color:var(--muted);font-size:14px;padding-left:20px;line-height:2.2;">
+    <li>Should Whoop connection be optional (enhancement) or required for the health module?</li>
+    <li>Which 3–5 metrics are highest priority to surface in the UI (Recovery, HRV, Sleep, Strain, SpO₂)?</li>
+    <li>Do we need to re-store Whoop data in our DB, or can we proxy each request at read time?</li>
+    <li>Are GDPR data-at-rest requirements applicable given our target EU market?</li>
+    <li>Should we support Oura Ring as an alternative (broader user base, no mandatory subscription)?</li>
+    <li>How do we handle users whose Whoop subscription lapses — graceful degradation or feature lockout?</li>
+  </ul>
+</section>
+
+</div><!-- /page -->
+
+<footer>
+  <div><strong>Whoop Feature & Integration Guide</strong> · PBI #213 · Sprint 2 Spike Output · thenxt-doo</div>
+  <div>Generated June 2026 · thenxtone ADO org · Updated: all ACs complete</div>
+</footer>
+
+<script>
+document.querySelectorAll('.nav-strip a').forEach(link=>{
+  link.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(link.getAttribute('href'));
+    if(t){t.scrollIntoView({behavior:'smooth',block:'start'});}
+    document.querySelectorAll('.nav-strip a').forEach(l=>l.classList.remove('active'));
+    link.classList.add('active');
+  });
+});
+const sections=document.querySelectorAll('section[id]');
+const navLinks=document.querySelectorAll('.nav-strip a');
+new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navLinks.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id));
+    }
+  });
+},{threshold:0.25}).observe&&sections.forEach(s=>new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)navLinks.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id));});
+},{threshold:0.25}).observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whoop Dashboard · Sample Integration — PBI #213</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg:#080a0f; --surface:#0e1117; --surface2:#141820; --surface3:#1a1f2a;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --text:#dde1ec; --muted:#5a6278;
+  --green:#00e5c0; --blue:#4a9eff; --purple:#a855f7;
+  --amber:#f59e0b; --red:#ff4d6d; --pink:#ec4899;
+  --font:'Space Grotesk',system-ui,sans-serif;
+  --mono:'Space Mono',monospace;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh;line-height:1.55;}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;gap:16px;padding:0 28px;height:60px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;color:#fff;}
+.logo-ring{width:32px;height:32px;border-radius:50%;border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.mock-badge{padding:4px 12px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);border-radius:20px;font-size:11px;font-weight:600;color:var(--amber);letter-spacing:.06em;text-transform:uppercase;}
+.user-chip{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);}
+.avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#4a9eff);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-right:5px;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+
+/* ── TABS NAV ── */
+.page-tabs{display:flex;background:var(--surface2);border-bottom:1px solid var(--border);padding:0 28px;}
+.page-tab{padding:14px 20px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+.page-tab:hover{color:var(--text);}
+.page-tab.active{color:var(--green);border-color:var(--green);}
+
+/* ── PAGE PANELS ── */
+.panel{display:none;padding:28px;max-width:1280px;margin:0 auto;}
+.panel.active{display:block;}
+
+/* ── DATE NAV ── */
+.date-nav{display:flex;align-items:center;gap:16px;margin-bottom:28px;}
+.date-btn{width:34px;height:34px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);font-size:16px;transition:background .15s;}
+.date-btn:hover{background:var(--surface3);}
+.date-label{font-size:16px;font-weight:600;color:#fff;}
+.date-sub{font-size:12px;color:var(--muted);margin-top:1px;}
+.tabs{margin-left:auto;display:flex;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:4px;}
+.tab{padding:6px 14px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s;}
+.tab.active{background:var(--surface3);color:#fff;}
+
+/* ── HERO SCORES ── */
+.score-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;position:relative;overflow:visible;cursor:pointer;transition:border-color .2s;}
+.score-card:hover{border-color:var(--border2);}
+.score-card.active-card{border-color:var(--card-color,var(--green));}
+.score-card::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top right,var(--card-color,var(--green)),transparent 70%);opacity:.04;pointer-events:none;border-radius:var(--r);}
+.score-label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--card-color,var(--green));margin-bottom:14px;display:flex;align-items:center;gap:6px;width:100%;}
+.ring-wrap{position:relative;width:80px;height:80px;margin-bottom:12px;}
+.ring-wrap svg{width:80px;height:80px;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:7;}
+.ring-fill{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1);}
+.ring-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;font-family:var(--mono);}
+.score-desc{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.score-trend{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;}
+.trend-up{color:var(--green);} .trend-down{color:var(--red);}
+
+/* ── CHART INFO ICON & TOOLTIP ── */
+.tile-info{position:relative;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid var(--border2);cursor:help;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0;transition:background .15s;}
+.tile-info:hover{background:rgba(255,255,255,0.12);color:var(--text);}
+.tile-info .info-tooltip{position:absolute;top:calc(100% + 8px);right:0;width:240px;background:#1a1f2a;border:1px solid var(--border2);border-radius:10px;padding:12px 14px;font-size:12px;line-height:1.6;color:var(--text);font-weight:400;z-index:100;opacity:0;pointer-events:none;transform:translateY(-4px);transition:opacity .2s,transform .2s;box-shadow:0 8px 24px rgba(0,0,0,.4);text-transform:none;letter-spacing:0;}
+.tile-info:hover .info-tooltip{opacity:1;transform:translateY(0);pointer-events:auto;}
+.info-tooltip::before{content:'';position:absolute;top:-5px;right:8px;width:8px;height:8px;background:#1a1f2a;border-left:1px solid var(--border2);border-top:1px solid var(--border2);transform:rotate(45deg);}
+.info-tooltip strong{color:var(--green);display:block;margin-bottom:4px;}
+
+/* ── METRICS ── */
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.mini-metric{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;}
+.mini-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.mini-val{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1;}
+.mini-unit{font-size:12px;color:var(--muted);font-weight:400;}
+.mini-bar-wrap{margin-top:10px;height:3px;background:rgba(255,255,255,.06);border-radius:2px;}
+.mini-bar{height:100%;border-radius:2px;}
+
+/* ── DETAIL GRID ── */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.metric-tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
+.tile-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.tile-header-left{display:flex;align-items:center;gap:8px;}
+.tile-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+.tile-badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;background:rgba(255,255,255,.05);color:var(--muted);}
+
+/* ── SLEEP STAGES ── */
+.sleep-stages{display:flex;height:24px;border-radius:6px;overflow:hidden;margin-bottom:10px;}
+.stage{height:100%;}
+.stage-legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--muted);margin-bottom:14px;}
+.legend-item{display:flex;align-items:center;gap:5px;}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+
+/* ── HR ZONES ── */
+.zones{display:flex;flex-direction:column;gap:8px;}
+.zone-row{display:flex;align-items:center;gap:10px;font-size:12px;}
+.zone-label{width:55px;color:var(--muted);flex-shrink:0;font-size:11px;}
+.zone-bar-bg{flex:1;height:8px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;}
+.zone-bar{height:100%;border-radius:4px;transition:width 1s ease;}
+.zone-time{width:44px;text-align:right;color:var(--muted);font-family:var(--mono);font-size:11px;}
+
+/* ── CODE PANEL ── */
+.code-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:28px;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted);}
+.code-title{font-weight:600;color:var(--text);}
+pre.code-body{padding:18px;font-family:var(--mono);font-size:11.5px;line-height:1.7;color:#c9d1e0;overflow-x:auto;background:transparent;border:none;margin:0;}
+.kw{color:#c792ea;} .str{color:#c3e88d;} .num{color:#f78c6c;} .key{color:#82aaff;} .cmt{color:#4a5568;font-style:italic;}
+
+/* ── README PANEL ── */
+.readme-wrap{font-size:14px;line-height:1.75;}
+.readme-wrap h2{font-size:20px;font-weight:600;color:#fff;margin:32px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.readme-wrap h2:first-child{margin-top:0;}
+.readme-wrap h3{font-size:15px;font-weight:600;color:var(--text);margin:20px 0 8px;}
+.readme-wrap p{color:var(--muted);margin-bottom:12px;}
+.readme-wrap ul,ol{color:var(--muted);padding-left:20px;margin-bottom:16px;}
+.readme-wrap li{margin-bottom:6px;}
+.readme-wrap code{font-family:var(--mono);font-size:12px;padding:2px 6px;background:rgba(255,255,255,.07);border-radius:4px;color:var(--green);}
+.readme-wrap pre{background:#0d0f14;border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--mono);font-size:12px;line-height:1.65;overflow-x:auto;color:#c9d1e0;margin:12px 0 20px;}
+.step-block{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start;}
+.step-n{width:28px;height:28px;border-radius:50%;background:rgba(0,229,192,.12);border:1px solid rgba(0,229,192,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green);flex-shrink:0;}
+.step-body .step-title{font-weight:600;color:#fff;margin-bottom:4px;}
+.step-body .step-desc{font-size:13px;color:var(--muted);}
+.alert-box{display:flex;gap:12px;padding:14px 16px;border-radius:10px;margin-bottom:16px;border-left:3px solid;font-size:13px;}
+.alert-box.warn{background:rgba(245,158,11,.08);border-color:var(--amber);color:#d4a04a;}
+.alert-box.info{background:rgba(74,158,255,.08);border-color:var(--blue);color:#7aacf0;}
+.alert-box.ok{background:rgba(0,229,192,.08);border-color:var(--green);color:var(--green);}
+
+/* ── FOOTER ── */
+.footer-note{text-align:center;padding:20px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);}
+.footer-note a{color:var(--green);text-decoration:none;}
+
+@media(max-width:800px){
+  .score-row{grid-template-columns:1fr;}
+  .detail-grid{grid-template-columns:1fr;}
+  .metrics-row{grid-template-columns:1fr 1fr;}
+  .panel{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><div class="logo-ring">W</div>Whoop Dashboard</div>
+  <span style="font-size:12px;color:var(--muted);font-family:var(--mono);"><span class="sync-dot"></span>SYNC 4m ago</span>
+  <div class="topbar-right">
+    <span class="mock-badge">⚡ Mock Data</span>
+    <div class="user-chip"><div class="avatar">SM</div><span>Shehab Magdy</span></div>
+  </div>
+</div>
+
+<!-- PAGE-LEVEL TABS -->
+<div class="page-tabs">
+  <div class="page-tab active" onclick="switchPanel('dashboard',this)">📊 Dashboard</div>
+  <div class="page-tab" onclick="switchPanel('api',this)">⚙️ API Integration</div>
+  <div class="page-tab" onclick="switchPanel('readme',this)">📖 README / Setup</div>
+</div>
+
+<!-- ═══════════════════════════════════ DASHBOARD ═══════════════════════════════════ -->
+<div class="panel active" id="panel-dashboard">
+
+  <div class="date-nav">
+    <button class="date-btn" onclick="changeDay(-1)">‹</button>
+    <div>
+      <div class="date-label" id="dateLabel">Tuesday, June 3, 2026</div>
+      <div class="date-sub">Day 47 of current WHOOP membership</div>
+    </div>
+    <button class="date-btn" onclick="changeDay(1)">›</button>
+    <div class="tabs">
+      <div class="tab active" onclick="setTab(this)">Today</div>
+      <div class="tab" onclick="setTab(this)">Week</div>
+      <div class="tab" onclick="setTab(this)">Month</div>
+    </div>
+  </div>
+
+  <!-- HERO SCORE RINGS -->
+  <div class="score-row">
+    <div class="score-card active-card" style="--card-color:var(--green)" onclick="selectCard(this)">
+      <div class="score-label">💓 Recovery
+        <div class="tile-info" style="margin-left:auto" onclick="event.stopPropagation()">i
+          <div class="info-tooltip" style="right:0;left:auto;">
+            <strong>Recovery Score</strong>
+            Your daily readiness score (0–100%) computed each morning from HRV, resting heart rate, sleep quality, and sleep debt. Green (67–100%) = push hard. Yellow (34–66%) = moderate effort. Red (0–33%) = rest. Personalised to your 30-day baseline. Data via <code>/v1/recovery</code>.
+          </div>
+        </div>
+      </div>
+      <div class="ring-wrap">
+        <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="32"/><circle class="ring-fill" id="recoveryRing" cx="40" cy="40" r="32" stroke="var(--green)" stroke-dasharray="201" stroke-dashoffset="44"/></svg>
+        <div class="ring-center" id="recoveryVal">78%</div>
+      </div>
+      <div class="score-desc">Green zone · Well recovered</div>
+      <div class="score-trend trend-up">↑ +12 from yesterday</div>
+    </div>
+    <div class="score-card" style="--card-color:var(--blue)" onclick="selectCard(this)">
+      <div class="score-label">⚡ Day Strain
+        <div class="tile-info" style="margin-left:auto" onclick="event.stopPropagation()">i
+          <div class="info-tooltip" style="right:0;left:auto;">
+            <strong>Day Strain</strong>
+            A 0–21 cardiovascular load score that accumulates across your full physiological cycle (roughly midnight-to-midnight). Derived from time spent in each heart rate zone weighted by intensity. 0–9 = low, 10–13 = moderate, 14–17 = strenuous, 18–21 = all out. Data via <code>/v1/cycle</code>.
+          </div>
+        </div>
+      </div>
+      <div class="ring-wrap">
+        <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="32"/><circle class="ring-fill" id="strainRing" cx="40" cy="40" r="32" stroke="var(--blue)" stroke-dasharray="201" stroke-dashoffset="108"/></svg>
+        <div class="ring-center" id="strainVal">12.4</div>
+      </div>
+      <div class="score-desc">Moderate · Out of 21</div>
+      <div class="score-trend trend-up">↑ +2.1 from yesterday</div>
+    </div>
+    <div class="score-card" style="--card-color:var(--purple)" onclick="selectCard(this)">
+      <div class="score-label">🌙 Sleep Performance
+        <div class="tile-info" style="margin-left:auto" onclick="event.stopPropagation()">i
+          <div class="info-tooltip" style="right:0;left:auto;">
+            <strong>Sleep Performance</strong>
+            The percentage of your personalised sleep need that you actually achieved last night. Sleep need is calculated dynamically based on recent strain, sleep debt, and nap history — not a fixed 8-hour target. 85%+ is considered optimal. Data via <code>/v1/activity/sleep</code> (<code>sleep_performance_percentage</code>).
+          </div>
+        </div>
+      </div>
+      <div class="ring-wrap">
+        <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="32"/><circle class="ring-fill" id="sleepRing" cx="40" cy="40" r="32" stroke="var(--purple)" stroke-dasharray="201" stroke-dashoffset="26"/></svg>
+        <div class="ring-center" id="sleepVal">87%</div>
+      </div>
+      <div class="score-desc">7h 42m slept · Need: 8h 20m</div>
+      <div class="score-trend trend-down">↓ −4 from yesterday</div>
+    </div>
+  </div>
+
+  <!-- MINI METRICS -->
+  <div class="metrics-row">
+    <div class="mini-metric">
+      <div class="mini-label">HRV <div class="tile-info">i<div class="info-tooltip"><strong>Heart Rate Variability (RMSSD)</strong>Milliseconds between heartbeats during sleep. Higher HRV = better recovery capacity. Whoop uses RMSSD, the gold-standard method for short-term HRV. Your baseline is personalised over 30 days.</div></div></div>
+      <div class="mini-val">64<span class="mini-unit"> ms</span></div>
+      <div class="mini-bar-wrap"><div class="mini-bar" style="width:64%;background:var(--green)"></div></div>
+    </div>
+    <div class="mini-metric">
+      <div class="mini-label">Resting HR <div class="tile-info">i<div class="info-tooltip"><strong>Resting Heart Rate</strong>Lowest recorded heart rate during your deepest sleep stage. Elevated RHR can signal fatigue, illness, or overtraining. Whoop samples every second throughout sleep to find the true minimum.</div></div></div>
+      <div class="mini-val">52<span class="mini-unit"> bpm</span></div>
+      <div class="mini-bar-wrap"><div class="mini-bar" style="width:52%;background:var(--blue)"></div></div>
+    </div>
+    <div class="mini-metric">
+      <div class="mini-label">Resp. Rate <div class="tile-info">i<div class="info-tooltip"><strong>Respiratory Rate</strong>Breaths per minute averaged across your sleep session, derived from the accelerometer. Normal range: 12–20 rpm. Sudden changes can indicate illness or poor sleep quality.</div></div></div>
+      <div class="mini-val">14.2<span class="mini-unit"> rpm</span></div>
+      <div class="mini-bar-wrap"><div class="mini-bar" style="width:71%;background:var(--purple)"></div></div>
+    </div>
+    <div class="mini-metric">
+      <div class="mini-label">Calories <div class="tile-info">i<div class="info-tooltip"><strong>Total Energy Expenditure</strong>Estimated total calories burned (active + basal metabolic rate) for the current physiological cycle. Calculated from heart rate, strain, and your personal metrics (height, weight, age).</div></div></div>
+      <div class="mini-val">2,341<span class="mini-unit"> kcal</span></div>
+      <div class="mini-bar-wrap"><div class="mini-bar" style="width:78%;background:var(--amber)"></div></div>
+    </div>
+  </div>
+
+  <!-- DETAIL CHARTS -->
+  <div class="detail-grid">
+
+    <!-- HRV 7-Day -->
+    <div class="metric-tile">
+      <div class="tile-header">
+        <div class="tile-header-left">
+          <div class="tile-title">HRV · 7-day trend</div>
+          <div class="tile-info">i
+            <div class="info-tooltip">
+              <strong>7-Day HRV Trend (RMSSD)</strong>
+              Tracks your heart rate variability each morning after sleep. Consistently rising HRV signals improving fitness or adequate recovery. A sudden single-day drop is usually noise — look for multi-day trends. Data via <code>/v1/recovery</code>.
+            </div>
+          </div>
+        </div>
+        <div class="tile-badge">RMSSD · ms</div>
+      </div>
+      <canvas id="hrvChart" height="130"></canvas>
+    </div>
+
+    <!-- Sleep Stages -->
+    <div class="metric-tile">
+      <div class="tile-header">
+        <div class="tile-header-left">
+          <div class="tile-title">Last night's sleep stages</div>
+          <div class="tile-info">i
+            <div class="info-tooltip">
+              <strong>Sleep Stage Breakdown</strong>
+              Shows time in Awake, Light, Deep (SWS), and REM stages. Deep sleep drives physical repair; REM drives cognitive restoration. The colour bar maps chronological stage sequence. Whoop uses accelerometer + PPG for staging. Data via <code>/v1/activity/sleep</code>.
+            </div>
+          </div>
+        </div>
+        <div class="tile-badge">7h 42m total</div>
+      </div>
+      <div class="sleep-stages" id="sleepStages">
+        <div class="stage" style="flex:10;background:#1e2535;" title="Awake 10%"></div>
+        <div class="stage" style="flex:30;background:#5a3d8a;" title="Light 30%"></div>
+        <div class="stage" style="flex:25;background:#2d5aa8;" title="Deep 25%"></div>
+        <div class="stage" style="flex:28;background:#8b5cf6;" title="REM 28%"></div>
+        <div class="stage" style="flex:7;background:#1e2535;" title="Awake 7%"></div>
+      </div>
+      <div class="stage-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#1e2535"></div>Awake 38m</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#5a3d8a"></div>Light 2h 18m</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#2d5aa8"></div>Deep 1h 54m</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div>REM 3h 12m</div>
+      </div>
+      <canvas id="sleepChart" height="90"></canvas>
+    </div>
+
+    <!-- Recovery 30-day -->
+    <div class="metric-tile">
+      <div class="tile-header">
+        <div class="tile-header-left">
+          <div class="tile-title">Recovery · 30-day history</div>
+          <div class="tile-info">i
+            <div class="info-tooltip">
+              <strong>30-Day Recovery Score</strong>
+              Daily readiness score (0–100%) computed each morning. <span style="color:#00e5c0">Green (67–100%)</span>: push hard. <span style="color:#f59e0b">Yellow (34–66%)</span>: moderate effort. <span style="color:#ff4d6d">Red (0–33%)</span>: prioritise rest. Reflects HRV, RHR, sleep quality, and sleep debt. Data via <code>/v1/recovery</code>.
+            </div>
+          </div>
+        </div>
+        <div class="tile-badge">Score 0–100</div>
+      </div>
+      <canvas id="recoveryChart" height="120"></canvas>
+    </div>
+
+    <!-- HR Zones -->
+    <div class="metric-tile">
+      <div class="tile-header">
+        <div class="tile-header-left">
+          <div class="tile-title">Heart rate zones · Today's workout</div>
+          <div class="tile-info">i
+            <div class="info-tooltip">
+              <strong>Heart Rate Zone Breakdown</strong>
+              Whoop divides HR into 6 zones (0–5) based on your personalised max HR. Zone 0 = rest, Zone 5 = max effort. Bar width = time spent in zone. More time in Zone 3–4 builds aerobic base; Zone 5 drives VO₂ max gains. Data via <code>/v1/activity/workout</code>.
+            </div>
+          </div>
+        </div>
+        <div class="tile-badge">48m run · Strain 9.3</div>
+      </div>
+      <div class="zones">
+        <div class="zone-row"><div class="zone-label" style="color:#94a3b8">Zone 0</div><div class="zone-bar-bg"><div class="zone-bar" style="width:4%;background:#334155"></div></div><div class="zone-time">2:00</div></div>
+        <div class="zone-row"><div class="zone-label" style="color:#60a5fa">Zone 1</div><div class="zone-bar-bg"><div class="zone-bar" style="width:12%;background:#1d4ed8"></div></div><div class="zone-time">10:00</div></div>
+        <div class="zone-row"><div class="zone-label" style="color:#34d399">Zone 2</div><div class="zone-bar-bg"><div class="zone-bar" style="width:30%;background:#065f46"></div></div><div class="zone-time">15:00</div></div>
+        <div class="zone-row"><div class="zone-label" style="color:#fbbf24">Zone 3</div><div class="zone-bar-bg"><div class="zone-bar" style="width:48%;background:#92400e"></div></div><div class="zone-time">20:00</div></div>
+        <div class="zone-row"><div class="zone-label" style="color:#f87171">Zone 4</div><div class="zone-bar-bg"><div class="zone-bar" style="width:25%;background:#7f1d1d"></div></div><div class="zone-time">15:00</div></div>
+        <div class="zone-row"><div class="zone-label" style="color:#f43f5e">Zone 5</div><div class="zone-bar-bg"><div class="zone-bar" style="width:10%;background:#4c0519"></div></div><div class="zone-time">5:00</div></div>
+      </div>
+    </div>
+
+  </div><!-- /detail-grid -->
+
+  <!-- SpO2 + Skin Temp row -->
+  <div class="detail-grid">
+    <div class="metric-tile">
+      <div class="tile-header">
+        <div class="tile-header-left">
+          <div class="tile-title">Blood Oxygen (SpO₂) · 7-day</div>
+          <div class="tile-info">i
+            <div class="info-tooltip">
+              <strong>Overnight Blood Oxygen Saturation</strong>
+              Percentage of haemoglobin carrying oxygen, averaged across your sleep session. Normal: 95–100%. Values below 90% may indicate sleep apnea or altitude effects. Measured via red/IR LED ratio. Only available on Whoop 4.0+. Data via <code>/v1/recovery</code> (<code>spo2_percentage</code>).
+            </div>
+          </div>
+        </div>
+        <div class="tile-badge">SpO₂ %</div>
+      </div>
+      <canvas id="spo2Chart" height="130"></canvas>
+    </div>
+    <div class="metric-tile">
+      <div class="tile-header">
+        <div class="tile-header-left">
+          <div class="tile-title">Skin temperature delta · 14-day</div>
+          <div class="tile-info">i
+            <div class="info-tooltip">
+              <strong>Skin Temperature Deviation</strong>
+              Shows how many °C your skin temperature deviates from your personal baseline each night. Persistent elevation (+0.5°C or more) may indicate illness, inflammation, or hormonal changes. Baseline builds over 30 days. Data via <code>/v1/recovery</code> (<code>skin_temp_celsius</code>).
+            </div>
+          </div>
+        </div>
+        <div class="tile-badge">°C delta from baseline</div>
+      </div>
+      <canvas id="skinTempChart" height="130"></canvas>
+    </div>
+  </div>
+
+</div><!-- /panel-dashboard -->
+
+<!-- ═══════════════════════════════════ API PANEL ═══════════════════════════════════ -->
+<div class="panel" id="panel-api">
+  <div class="code-panel">
+    <div class="code-header"><span class="code-title">OAuth 2.0 Token Exchange</span><span>Node.js · Step 4 of auth flow</span></div>
+    <pre class="code-body"><span class="cmt">// whoop-auth.js — server-side only, never expose client_secret to the browser</span>
+<span class="kw">async function</span> exchangeCode(code) {
+  <span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">'https://api.prod.whoop.com/oauth/oauth2/token'</span>, {
+    method: <span class="str">'POST'</span>,
+    headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/x-www-form-urlencoded'</span> },
+    body: <span class="kw">new</span> URLSearchParams({
+      grant_type: <span class="str">'authorization_code'</span>, code,
+      client_id:     process.env.<span class="key">WHOOP_CLIENT_ID</span>,
+      client_secret: process.env.<span class="key">WHOOP_CLIENT_SECRET</span>,
+      redirect_uri:  process.env.<span class="key">WHOOP_REDIRECT_URI</span>,
+    })
+  });
+  <span class="kw">if</span> (!res.ok) <span class="kw">throw new</span> Error(<span class="str">`Token exchange failed: ${res.status}`</span>);
+  <span class="kw">return</span> res.json(); <span class="cmt">// { access_token, refresh_token, expires_in: 3600, token_type: "Bearer" }</span>
+}
+
+<span class="kw">async function</span> refreshToken(refresh) {
+  <span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">'https://api.prod.whoop.com/oauth/oauth2/token'</span>, {
+    method: <span class="str">'POST'</span>,
+    headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/x-www-form-urlencoded'</span> },
+    body: <span class="kw">new</span> URLSearchParams({
+      grant_type:    <span class="str">'refresh_token'</span>,
+      refresh_token: refresh,
+      client_id:     process.env.<span class="key">WHOOP_CLIENT_ID</span>,
+      client_secret: process.env.<span class="key">WHOOP_CLIENT_SECRET</span>,
+    })
+  });
+  <span class="kw">return</span> res.json();
+}</pre>
+  </div>
+
+  <div class="code-panel">
+    <div class="code-header"><span class="code-title">Fetching Health Data</span><span>Recovery · Sleep · Workout endpoints</span></div>
+    <pre class="code-body"><span class="kw">const</span> BASE = <span class="str">'https://api.prod.whoop.com/developer/v1'</span>;
+<span class="kw">const</span> headers = (token) => ({ Authorization: <span class="str">`Bearer ${token}`</span> });
+
+<span class="cmt">// Recovery: HRV, RHR, SpO2, skin temp, recovery score</span>
+<span class="kw">async function</span> getRecovery(token, days = <span class="num">7</span>) {
+  <span class="kw">const</span> end   = <span class="kw">new</span> Date().toISOString();
+  <span class="kw">const</span> start = <span class="kw">new</span> Date(Date.now() - days * <span class="num">86400000</span>).toISOString();
+  <span class="kw">const</span> res = <span class="kw">await</span> fetch(
+    <span class="str">`${BASE}/recovery?limit=${days}&start=${start}&end=${end}`</span>,
+    { headers: headers(token) }
+  );
+  <span class="kw">const</span> data = <span class="kw">await</span> res.json();
+  <span class="kw">return</span> data.records; <span class="cmt">// sorted desc; handle next_token for pagination</span>
+}
+
+<span class="cmt">// Daily cycle: strain, calories, avg/max HR</span>
+<span class="kw">async function</span> getCycle(token) {
+  <span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">`${BASE}/cycle?limit=1`</span>, { headers: headers(token) });
+  <span class="kw">return</span> (await res.json()).records[<span class="num">0</span>];
+}
+
+<span class="cmt">// Latest sleep session with stage breakdown</span>
+<span class="kw">async function</span> getSleep(token) {
+  <span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">`${BASE}/activity/sleep?limit=1`</span>, { headers: headers(token) });
+  <span class="kw">return</span> (await res.json()).records[<span class="num">0</span>];
+}
+
+<span class="cmt">// Recent workouts with HR zone breakdown</span>
+<span class="kw">async function</span> getWorkouts(token, limit = <span class="num">5</span>) {
+  <span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">`${BASE}/activity/workout?limit=${limit}`</span>, { headers: headers(token) });
+  <span class="kw">return</span> (await res.json()).records;
+}
+
+<span class="cmt">// ── Usage example ──────────────────────────────────────────────────────────
+// const records  = await getRecovery(token, 7);
+// const latest   = records[0]?.score;
+// console.log('Recovery:', latest?.recovery_score, '%');
+// console.log('HRV:',      latest?.hrv_rmssd_milli, 'ms');
+// console.log('RHR:',      latest?.resting_heart_rate, 'bpm');
+// console.log('SpO2:',     latest?.spo2_percentage, '%');
+// console.log('SkinTemp:', latest?.skin_temp_celsius, '°C delta');</span></pre>
+  </div>
+
+  <div class="code-panel">
+    <div class="code-header"><span class="code-title">Error Handling & Pagination</span><span>Production-grade patterns</span></div>
+    <pre class="code-body"><span class="cmt">// Retry with exponential backoff on 429 rate-limit errors</span>
+<span class="kw">async function</span> whoopFetch(url, token, retries = <span class="num">3</span>) {
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; retries; i++) {
+    <span class="kw">const</span> res = <span class="kw">await</span> fetch(url, { headers: { Authorization: <span class="str">`Bearer ${token}`</span> } });
+    <span class="kw">if</span> (res.status === <span class="num">401</span>) { token = await refreshToken(savedRefreshToken); <span class="kw">continue</span>; }
+    <span class="kw">if</span> (res.status === <span class="num">429</span>) { <span class="kw">await</span> sleep(<span class="num">2</span> ** i * <span class="num">1000</span>); <span class="kw">continue</span>; }
+    <span class="kw">if</span> (!res.ok) <span class="kw">throw new</span> Error(<span class="str">`Whoop API ${res.status}`</span>);
+    <span class="kw">return</span> res.json();
+  }
+}
+
+<span class="cmt">// Paginate through all recovery records</span>
+<span class="kw">async function</span> getAllRecovery(token) {
+  <span class="kw">const</span> all = []; <span class="kw">let</span> nextToken = <span class="kw">null</span>;
+  <span class="kw">do</span> {
+    <span class="kw">const</span> url  = <span class="str">`${BASE}/recovery?limit=25`</span> + (nextToken ? <span class="str">`&nextToken=${nextToken}`</span> : <span class="str">''</span>);
+    <span class="kw">const</span> data = <span class="kw">await</span> whoopFetch(url, token);
+    all.push(...data.records);
+    nextToken = data.next_token ?? <span class="kw">null</span>;
+  } <span class="kw">while</span> (nextToken);
+  <span class="kw">return</span> all;
+}</pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ README PANEL ═══════════════════════════════════ -->
+<div class="panel" id="panel-readme">
+<div class="readme-wrap">
+
+  <h2>📖 README — Whoop Sample Integration App</h2>
+  <p>This app demonstrates how to connect to the <strong>Whoop Developer API</strong> and visualise health metrics in a web dashboard. The dashboard runs on mock data by default; follow the steps below to connect your real Whoop account.</p>
+
+  <div class="alert-box warn">⚠️ <strong>No sandbox:</strong> Whoop has no test environment. You need a real Whoop device and an active subscription to obtain live data. Use the mock data mode for development and CI pipelines.</div>
+
+  <h2>Prerequisites</h2>
+  <div class="step-block"><div class="step-n">1</div><div class="step-body"><div class="step-title">Active Whoop membership</div><div class="step-desc">A Whoop 4.0 device with an active subscription ($30/month or annual). API access requires the device to sync data to Whoop's cloud.</div></div></div>
+  <div class="step-block"><div class="step-n">2</div><div class="step-body"><div class="step-title">Node.js 18+ installed</div><div class="step-desc">The backend auth proxy is a small Express server. Run <code>node --version</code> to check. Download from <code>nodejs.org</code> if needed.</div></div></div>
+  <div class="step-block"><div class="step-n">3</div><div class="step-body"><div class="step-title">Whoop Developer account</div><div class="step-desc">Register a free developer account at <code>developer.whoop.com</code>. Create a new application — you'll receive a <code>client_id</code> and <code>client_secret</code>.</div></div></div>
+
+  <h2>Installation</h2>
+  <pre>git clone https://github.com/your-org/whoop-dashboard-spike
+cd whoop-dashboard-spike
+npm install</pre>
+
+  <h2>Environment Variables</h2>
+  <p>Create a <code>.env</code> file in the project root. <strong>Never commit this file.</strong></p>
+  <pre>WHOOP_CLIENT_ID=your_client_id_here
+WHOOP_CLIENT_SECRET=your_client_secret_here
+WHOOP_REDIRECT_URI=http://localhost:3000/auth/callback
+SESSION_SECRET=any_random_string_32_chars_or_more
+PORT=3000</pre>
+
+  <h2>Running Locally</h2>
+  <pre># Start the Express backend (handles OAuth + proxies API calls)
+npm run dev
+
+# Open in browser
+open http://localhost:3000</pre>
+
+  <div class="step-block"><div class="step-n">1</div><div class="step-body"><div class="step-title">Click "Connect Whoop Account"</div><div class="step-desc">You'll be redirected to <code>api.prod.whoop.com/oauth/oauth2/auth</code> where you log in with your Whoop credentials and grant the app permission to read your data.</div></div></div>
+  <div class="step-block"><div class="step-n">2</div><div class="step-body"><div class="step-title">Whoop redirects back</div><div class="step-desc">After consent, Whoop redirects to <code>/auth/callback?code=...</code>. The server exchanges the code for tokens and stores them in the session.</div></div></div>
+  <div class="step-block"><div class="step-n">3</div><div class="step-body"><div class="step-title">Dashboard loads real data</div><div class="step-desc">The frontend fetches <code>/recovery</code>, <code>/api/cycle</code>, and <code>/api/sleep</code> — your backend proxies these to the Whoop API using the stored token, refreshing automatically when expired.</div></div></div>
+
+  <h2>OAuth Scopes Requested</h2>
+  <p>The app requests the following scopes during the authorization step:</p>
+  <ul>
+    <li><code>read:profile</code> — name, email, unit preferences</li>
+    <li><code>read:recovery</code> — HRV, RHR, SpO₂, skin temp, recovery score</li>
+    <li><code>read:cycles</code> — daily strain and calorie data</li>
+    <li><code>read:sleep</code> — sleep sessions and stage breakdown</li>
+    <li><code>read:workout</code> — workout sessions and HR zone data</li>
+  </ul>
+
+  <h2>Mock Data Mode</h2>
+  <p>By default (no token present), the app runs in mock mode — all metrics are randomly generated on each page load. To force mock mode even when a token exists:</p>
+  <pre>WHOOP_MOCK_DATA=true npm run dev</pre>
+
+  <h2>Project Structure</h2>
+  <pre>whoop-dashboard-spike/
+├── server/
+│   ├── index.js          # Express app — OAuth routes + API proxy
+│   ├── whoop-client.js   # API wrapper (getRecovery, getSleep, etc.)
+│   └── mock-data.js      # Realistic mock data generator
+├── public/
+│   └── index.html        # This dashboard file
+├── .env                  # Local secrets (not committed)
+├── .env.example          # Template for new developers
+└── README.md</pre>
+
+  <h2>Data Freshness</h2>
+  <div class="alert-box info">ℹ️ Whoop data is <strong>not real-time</strong>. Recovery, sleep, and HRV data only become available after your device syncs post-sleep (typically within 5–10 minutes of waking). The dashboard caches API responses for 15 minutes to avoid rate-limit issues.</div>
+
+  <h2>Rate Limits</h2>
+  <p>The Whoop API enforces approximately <strong>100 requests per minute per user token</strong>. The backend implements exponential backoff on 429 responses. For production, cache responses in Redis or a database — don't fetch from Whoop on every frontend request.</p>
+
+  <h2>Going to Production</h2>
+  <ul>
+    <li>Store tokens encrypted in your database, not in memory/session</li>
+    <li>Run token refresh on a scheduled job, not on user request</li>
+    <li>Never expose <code>client_secret</code> or user tokens to the browser</li>
+    <li>Implement GDPR consent before storing any biometric data</li>
+    <li>Add HTTPS — Whoop requires TLS for production redirect URIs</li>
+  </ul>
+
+</div>
+</div><!-- /panel-readme -->
+
+<div class="footer-note">
+  ⚡ Mock data mode active — no real Whoop device connected. See the README tab for connection instructions. ·
+  <a href="https://developer.whoop.com" target="_blank">developer.whoop.com</a> ·
+  <strong>PBI #213 Spike · Sprint 2 · thenxt-doo</strong>
+</div>
+
+<script>
+Chart.defaults.color='#5a6278';
+Chart.defaults.font.family="'Space Grotesk',sans-serif";
+Chart.defaults.font.size=11;
+
+function weekLabels(n=7){const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],t=new Date();return Array.from({length:n},(_,i)=>{const d=new Date(t);d.setDate(d.getDate()-(n-1-i));return days[d.getDay()];})}
+
+const tooltipDefaults={backgroundColor:'#141820',borderColor:'rgba(255,255,255,0.1)',borderWidth:1};
+
+// HRV 7-day
+new Chart(document.getElementById('hrvChart').getContext('2d'),{type:'line',data:{labels:weekLabels(),datasets:[{data:[48,55,61,58,72,69,64],borderColor:'#00e5c0',backgroundColor:'rgba(0,229,192,0.08)',borderWidth:2,pointRadius:4,pointBackgroundColor:'#00e5c0',pointBorderColor:'transparent',tension:0.4,fill:true}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{...tooltipDefaults,callbacks:{label:c=>` ${c.raw}ms RMSSD`}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a6278'}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a6278',callback:v=>v+'ms'},min:30,max:90}}}});
+
+// Sleep bar chart
+new Chart(document.getElementById('sleepChart').getContext('2d'),{type:'bar',data:{labels:weekLabels(),datasets:[{label:'Sleep hrs',data:[6.2,7.5,8.1,6.8,7.9,8.3,7.7],backgroundColor:ctx=>{const v=ctx.raw;return v>=8?'rgba(139,92,246,0.7)':v>=7?'rgba(139,92,246,0.45)':'rgba(139,92,246,0.2)'},borderRadius:4,borderWidth:0}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{...tooltipDefaults,callbacks:{label:c=>` ${c.raw}h sleep`}}},scales:{x:{grid:{display:false},ticks:{color:'#5a6278'}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a6278',callback:v=>v+'h'},min:4,max:10}}}});
+
+// Recovery 30-day
+const rec30=Array.from({length:30},()=>Math.round(45+Math.random()*45+Math.sin(Math.random()*4)*8));
+new Chart(document.getElementById('recoveryChart').getContext('2d'),{type:'bar',data:{labels:Array.from({length:30},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(29-i));return(d.getDate()===1||i===0||i===29)?`${d.getMonth()+1}/${d.getDate()}`:''}),datasets:[{data:rec30,backgroundColor:rec30.map(v=>v>=67?'rgba(0,229,192,0.7)':v>=34?'rgba(245,158,11,0.6)':'rgba(255,77,109,0.6)'),borderRadius:3,borderWidth:0}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{...tooltipDefaults,callbacks:{label:c=>{const v=c.raw;return ` ${v}% — ${v>=67?'Green ✓':v>=34?'Yellow':'Red ✗'}`}}}},scales:{x:{grid:{display:false},ticks:{color:'#5a6278'}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a6278',callback:v=>v+'%'},min:0,max:100}}}});
+
+// SpO2 7-day
+new Chart(document.getElementById('spo2Chart').getContext('2d'),{type:'line',data:{labels:weekLabels(),datasets:[{data:[97.4,96.8,97.9,97.1,98.2,97.6,97.4],borderColor:'#4a9eff',backgroundColor:'rgba(74,158,255,0.08)',borderWidth:2,pointRadius:4,pointBackgroundColor:'#4a9eff',pointBorderColor:'transparent',tension:0.4,fill:true}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{...tooltipDefaults,callbacks:{label:c=>` ${c.raw}% SpO₂`}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a6278'}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a6278',callback:v=>v+'%'},min:93,max:100}}}});
+
+// Skin Temp 14-day
+const skinData=Array.from({length:14},()=>+(Math.random()*1.2-0.3).toFixed(2));
+new Chart(document.getElementById('skinTempChart').getContext('2d'),{type:'bar',data:{labels:weekLabels(14),datasets:[{data:skinData,backgroundColor:skinData.map(v=>v>0.5?'rgba(255,77,109,0.7)':v>0?'rgba(245,158,11,0.55)':'rgba(74,158,255,0.55)'),borderRadius:4,borderWidth:0}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{...tooltipDefaults,callbacks:{label:c=>` ${c.raw>0?'+':''}${c.raw}°C`}}},scales:{x:{grid:{display:false},ticks:{color:'#5a6278'}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a6278',callback:v=>(v>0?'+':'')+v+'°'},min:-0.8,max:1.2}}}});
+
+// Panel switcher
+function switchPanel(id,el){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.page-tab').forEach(t=>t.classList.remove('active'));document.getElementById('panel-'+id).classList.add('active');el.classList.add('active');}
+
+// Date nav
+let currentDate=new Date(2026,5,3);
+const days2=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function changeDay(dir){
+  currentDate.setDate(currentDate.getDate()+dir);
+  document.getElementById('dateLabel').textContent=`${days2[currentDate.getDay()]}, ${months[currentDate.getMonth()]} ${currentDate.getDate()}, ${currentDate.getFullYear()}`;
+  const r=Math.round(50+Math.random()*44);
+  const s=+(6+Math.random()*14).toFixed(1);
+  const sl=Math.round(60+Math.random()*35);
+  setRing('recoveryRing',r,100,r+'%','recoveryVal');
+  setRing('strainRing',s,21,s,'strainVal');
+  setRing('sleepRing',sl,100,sl+'%','sleepVal');
+}
+function setRing(id,val,max,label,vid){
+  document.getElementById(id).style.strokeDashoffset=201-(val/max)*201;
+  document.getElementById(vid).textContent=label;
+}
+function selectCard(el){document.querySelectorAll('.score-card').forEach(c=>c.classList.remove('active-card'));el.classList.add('active-card');}
+function setTab(el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+
+// Animate rings on load
+setTimeout(()=>{['recoveryRing','strainRing','sleepRing'].forEach(id=>{const el=document.getElementById(id);const orig=el.style.strokeDashoffset;el.style.strokeDashoffset='201';setTimeout(()=>el.style.strokeDashoffset=orig,80);});},200);
+</script>
+</body>
+</html>

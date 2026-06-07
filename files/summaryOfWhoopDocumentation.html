@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WHOOP Developer Platform — Documentation Summary</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f0f0f;
+      color: #e8e8e8;
+      line-height: 1.65;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      padding: 3rem 1rem 2.5rem;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+      border-bottom: 2px solid #00d4aa;
+      margin-bottom: 2.5rem;
+      border-radius: 12px;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      color: #00d4aa;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: #888;
+      font-size: 0.95rem;
+    }
+
+    .toc {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 1.5rem 2rem;
+      max-width: 860px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .toc h2 {
+      font-size: 1rem;
+      color: #00d4aa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
+    }
+
+    .toc ol {
+      padding-left: 1.4rem;
+      color: #aaa;
+      font-size: 0.9rem;
+      column-count: 2;
+      column-gap: 2rem;
+    }
+
+    .toc ol li { margin-bottom: 0.35rem; }
+    .toc ol li a { color: #00d4aa; text-decoration: none; }
+    .toc ol li a:hover { text-decoration: underline; }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 1.1rem 1.5rem;
+      background: #111;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .card-header .icon {
+      font-size: 1.4rem;
+      width: 2.2rem;
+      text-align: center;
+    }
+
+    .card-header h2 {
+      font-size: 1.1rem;
+      color: #f0f0f0;
+      font-weight: 600;
+    }
+
+    .card-header .badge {
+      margin-left: auto;
+      font-size: 0.7rem;
+      background: #00d4aa22;
+      color: #00d4aa;
+      border: 1px solid #00d4aa44;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-body {
+      padding: 1.4rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .section-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #666;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .steps-list {
+      list-style: none;
+      counter-reset: step-counter;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .steps-list li {
+      counter-increment: step-counter;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.88rem;
+      color: #ccc;
+    }
+
+    .steps-list li::before {
+      content: counter(step-counter);
+      flex-shrink: 0;
+      width: 1.5rem;
+      height: 1.5rem;
+      background: #00d4aa22;
+      color: #00d4aa;
+      border: 1px solid #00d4aa44;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-top: 0.1rem;
+    }
+
+    .limits-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .limit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.88rem;
+      color: #ccc;
+    }
+
+    .limit-item .dot {
+      flex-shrink: 0;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ff6b6b;
+      margin-top: 0.45rem;
+    }
+
+    .limit-item .dot.yellow { background: #ffd93d; }
+    .limit-item .dot.green  { background: #00d4aa; }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.55rem;
+      border-radius: 20px;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+    }
+
+    .tag-red    { background: #ff6b6b22; color: #ff6b6b; border: 1px solid #ff6b6b44; }
+    .tag-yellow { background: #ffd93d22; color: #ffd93d; border: 1px solid #ffd93d44; }
+    .tag-green  { background: #00d4aa22; color: #00d4aa; border: 1px solid #00d4aa44; }
+    .tag-blue   { background: #4dabf722; color: #4dabf7; border: 1px solid #4dabf744; }
+    .tag-purple { background: #cc5de822; color: #cc5de8; border: 1px solid #cc5de844; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #2a2a2a;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+    }
+
+    .sub-section {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+    }
+
+    .sub-section h4 {
+      font-size: 0.82rem;
+      color: #00d4aa;
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid #222;
+      color: #bbb;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row span:last-child { color: #fff; font-weight: 600; }
+
+    code {
+      background: #252525;
+      color: #00d4aa;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-family: 'Fira Code', 'Courier New', monospace;
+    }
+
+    .note {
+      background: #1e2a28;
+      border-left: 3px solid #00d4aa;
+      border-radius: 0 6px 6px 0;
+      padding: 0.7rem 1rem;
+      font-size: 0.84rem;
+      color: #aaa;
+    }
+
+    .warn {
+      background: #2a1e1e;
+      border-left: 3px solid #ff6b6b;
+      border-radius: 0 6px 6px 0;
+      padding: 0.7rem 1rem;
+      font-size: 0.84rem;
+      color: #aaa;
+    }
+
+    .score-bar {
+      display: flex;
+      border-radius: 6px;
+      overflow: hidden;
+      height: 28px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .score-bar div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+    }
+
+    footer {
+      text-align: center;
+      color: #444;
+      font-size: 0.8rem;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #222;
+    }
+
+    @media (max-width: 600px) {
+      .two-col { grid-template-columns: 1fr; }
+      .toc ol  { column-count: 1; }
+      header h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🏃 WHOOP Developer Platform</h1>
+  <p>Complete Documentation Summary — Steps &amp; Limits by Category</p>
+</header>
+
+<!-- Table of Contents -->
+<div class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#overview">Platform Overview</a></li>
+    <li><a href="#whoop101">WHOOP 101 — Core Concepts</a></li>
+    <li><a href="#setup">App Setup &amp; Teams</a></li>
+    <li><a href="#oauth">OAuth 2.0 Authentication</a></li>
+    <li><a href="#datamodels">Data Models</a></li>
+    <li><a href="#pagination">Pagination</a></li>
+    <li><a href="#ratelimiting">API Rate Limiting</a></li>
+    <li><a href="#webhooks">Webhooks</a></li>
+    <li><a href="#migration">v1 → v2 Migration</a></li>
+    <li><a href="#approval">App Approval</a></li>
+    <li><a href="#support">Support &amp; FAQ</a></li>
+  </ol>
+</div>
+
+<div class="container">
+
+  <!-- 1. PLATFORM OVERVIEW -->
+  <div class="card" id="overview">
+    <div class="card-header">
+      <span class="icon">🌐</span>
+      <h2>1. Platform Overview</h2>
+      <span class="badge">Intro</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="section-title">Steps to Launch an App</div>
+        <ol class="steps-list">
+          <li>Sign up for a WHOOP membership — this is also your developer login</li>
+          <li>Create an app in the WHOOP Developer Dashboard</li>
+          <li>Authenticate using OAuth 2.0 (obtain Client ID &amp; Secret)</li>
+          <li>Make API requests using Access / Refresh Tokens</li>
+          <li>Submit app for approval before going public</li>
+        </ol>
+      </div>
+      <hr class="divider"/>
+      <div>
+        <div class="section-title">Limits</div>
+        <div class="limits-grid">
+          <div class="limit-item"><div class="dot"></div>Max <strong>&nbsp;5 apps&nbsp;</strong> per team (request more via form)</div>
+          <div class="limit-item"><div class="dot"></div>Apps limited to <strong>&nbsp;10 WHOOP members&nbsp;</strong> until approved</div>
+          <div class="limit-item"><div class="dot yellow"></div>WHOOP device + membership required to develop</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. WHOOP 101 -->
+  <div class="card" id="whoop101">
+    <div class="card-header">
+      <span class="icon">💪</span>
+      <h2>2. WHOOP 101 — Core Concepts</h2>
+      <span class="badge">Concepts</span>
+    </div>
+    <div class="card-body">
+
+      <div>
+        <div class="section-title">Strain Scale (0–21)</div>
+        <div class="score-bar">
+          <div style="background:#2e5c3a; color:#6fcf97; flex:1.9">Light<br/><small>0–9</small></div>
+          <div style="background:#5c5010; color:#ffd93d; flex:0.8">Mod<br/><small>10–13</small></div>
+          <div style="background:#5c3010; color:#ff9f43; flex:0.8">High<br/><small>14–17</small></div>
+          <div style="background:#5c1010; color:#ff6b6b; flex:0.8">All Out<br/><small>18–21</small></div>
+        </div>
+        <p style="font-size:0.78rem;color:#666;margin-top:0.4rem">Not a linear scale — personal to each user's baseline.</p>
+      </div>
+
+      <div>
+        <div class="section-title">Recovery Score (0–100%)</div>
+        <div class="score-bar">
+          <div style="background:#5c1010; color:#ff6b6b; flex:1">🔴 Red 0–33%</div>
+          <div style="background:#5c5010; color:#ffd93d; flex:1">🟡 Yellow 34–66%</div>
+          <div style="background:#2e5c3a; color:#6fcf97; flex:1">🟢 Green 67–100%</div>
+        </div>
+        <p style="font-size:0.78rem;color:#666;margin-top:0.4rem">Inputs: HRV, RHR, respiratory rate, sleep quality, skin temp, SpO2 (WHOOP 4.0).</p>
+      </div>
+
+      <div>
+        <div class="section-title">Sleep Tracking</div>
+        <div class="limits-grid">
+          <div class="limit-item"><div class="dot green"></div>Stages tracked: Light, REM, and Slow Wave (Deep) sleep</div>
+          <div class="limit-item"><div class="dot green"></div>Naps are tracked separately and marked with <code>nap: true</code></div>
+          <div class="limit-item"><div class="dot green"></div>Naps reduce the required sleep amount for the next cycle</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3. APP SETUP -->
+  <div class="card" id="setup">
+    <div class="card-header">
+      <span class="icon">⚙️</span>
+      <h2>3. App Setup &amp; Team Management</h2>
+      <span class="badge">Setup</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="section-title">Steps</div>
+        <ol class="steps-list">
+          <li>Go to Developer Dashboard — create a Team first (required)</li>
+          <li>Create an App — provide name, at least one scope, and one redirect URI</li>
+          <li>Copy your Client ID and Client Secret after creation</li>
+          <li>Invite team members via their WHOOP-registered email</li>
+          <li>Edit apps via the pencil icon; delete via the trash icon</li>
+        </ol>
+      </div>
+      <hr class="divider"/>
+      <div>
+        <div class="section-title">Limits &amp; Warnings</div>
+        <div class="limits-grid">
+          <div class="limit-item"><div class="dot"></div>At least <strong>&nbsp;1 scope&nbsp;</strong> required to create an app</div>
+          <div class="limit-item"><div class="dot"></div>At least <strong>&nbsp;1 redirect URI&nbsp;</strong> required per app</div>
+          <div class="limit-item"><div class="dot yellow"></div>Client Secret must <strong>&nbsp;never&nbsp;</strong> be exposed client-side or logged</div>
+          <div class="limit-item"><div class="dot"></div>App deletion is <strong>&nbsp;irreversible&nbsp;</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. OAUTH 2.0 -->
+  <div class="card" id="oauth">
+    <div class="card-header">
+      <span class="icon">🔐</span>
+      <h2>4. OAuth 2.0 Authentication</h2>
+      <span class="badge">Auth</span>
+    </div>
+    <div class="card-body">
+
+      <div class="two-col">
+        <div class="sub-section">
+          <h4>Key URLs</h4>
+          <div class="info-row"><span>Authorization URL</span></div>
+          <div style="padding:0.3rem 0 0.6rem; font-size:0.75rem"><code>api.prod.whoop.com/oauth/oauth2/auth</code></div>
+          <div class="info-row"><span>Token URL</span></div>
+          <div style="padding:0.3rem 0 0.6rem; font-size:0.75rem"><code>api.prod.whoop.com/oauth/oauth2/token</code></div>
+        </div>
+        <div class="sub-section">
+          <h4>Token Lifetime</h4>
+          <div class="info-row"><span>Access Token</span><span>~3600 sec (1 hr)</span></div>
+          <div class="info-row"><span>Refresh Token</span><span>With <code>offline</code> scope</span></div>
+          <div class="info-row"><span>State parameter</span><span>Min 8 characters</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Steps — Get Access Token</div>
+        <ol class="steps-list">
+          <li>Send request to Authorization URL → user logs in with WHOOP credentials</li>
+          <li>User grants consent to the requested scopes</li>
+          <li>WHOOP redirects to your Redirect URL with an authorization code</li>
+          <li>Exchange authorization code at the Token URL for an access + refresh token</li>
+          <li>Pass the access token as <code>Bearer</code> in the <code>Authorization</code> header on all API requests</li>
+        </ol>
+      </div>
+
+      <div>
+        <div class="section-title">Steps — Refresh Token</div>
+        <ol class="steps-list">
+          <li>POST to the Token URL with <code>grant_type: refresh_token</code>, refresh token, Client ID, Client Secret, and <code>scope: offline</code></li>
+          <li>Use the new access token returned; old tokens are immediately invalidated</li>
+          <li>Store the new refresh token for the next refresh cycle</li>
+        </ol>
+      </div>
+
+      <div>
+        <div class="section-title">Limits &amp; Rules</div>
+        <div class="limits-grid">
+          <div class="limit-item"><div class="dot"></div>Expired tokens return <code>401 Unauthorized</code></div>
+          <div class="limit-item"><div class="dot"></div>Must include <code>offline</code> scope to receive a refresh token</div>
+          <div class="limit-item"><div class="dot yellow"></div>Concurrent refresh requests: only the <strong>&nbsp;first succeeds&nbsp;</strong>; subsequent ones fail</div>
+          <div class="limit-item"><div class="dot"></div>Revoke tokens via <code>revokeUserOauthAccess</code> when user disables integration</div>
+          <div class="limit-item"><div class="dot green"></div>Recommended refresh interval: every <strong>&nbsp;1 hour&nbsp;</strong></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 5. DATA MODELS -->
+  <div class="card" id="datamodels">
+    <div class="card-header">
+      <span class="icon">📊</span>
+      <h2>5. Data Models</h2>
+      <span class="badge">API Data</span>
+    </div>
+    <div class="card-body">
+
+      <!-- Cycle -->
+      <div class="sub-section">
+        <h4>🔄 Cycle (Physiological Day)</h4>
+        <div class="limits-grid">
+          <div class="limit-item"><div class="dot green"></div>Represents the user's biological day — not a calendar day</div>
+          <div class="limit-item"><div class="dot green"></div>Fields: <code>id</code>, <code>user_id</code>, <code>start</code>, <code>end</code> (null if ongoing), <code>timezone_offset</code>, <code>score_state</code>, <code>score</code></div>
+          <div class="limit-item"><div class="dot green"></div>Score includes: strain, kilojoules, avg &amp; max heart rate</div>
+          <div class="limit-item"><div class="dot yellow"></div>Score states: <span class="tag tag-green">SCORED</span> <span class="tag tag-yellow">PENDING_SCORE</span> <span class="tag tag-red">UNSCORABLE</span></div>
+        </div>
+      </div>
+
+      <!-- Sleep -->
+      <div class="sub-section">
+        <h4>😴 Sleep</h4>
+        <div class="limits-grid">
+          <div class="limit-item"><div class="dot green"></div>Fields: <code>id</code> (UUID), <code>cycle_id</code>, <code>user_id</code>, <code>start</code>, <code>end</code>, <code>nap</code> (bool), <code>score_state</code>, <code>score</code></div>
+          <div class="limit-item"><div class="dot green"></div>Score includes: sleep stages, performance %, consistency %, efficiency %, respiratory rate</div>
+          <div class="limit-item"><div class="dot"></div><code>v1_id</code> field will <strong>&nbsp;not exist past 09/01/2025&nbsp;</strong></div>
+        </div>
+      </div>
+
+      <!-- Recovery -->
+      <div class="sub-section">
+        <h4>💚 Recovery</h4>
+        <div class="limits-grid">
+          <div class="limit-item"><div class="dot green"></div>Fields: <code>cycle_id</code>, <code>sleep_id</code> (UUID), <code>user_id</code>, <code>score_state</code>, <code>score</code></div>
+          <div class="limit-item"><div class="dot green"></div>Score includes: recovery %, RHR, HRV, SpO2, skin temp (°C)</div>
+          <div class="limit-item"><div class="dot yellow"></div>Only present when score_state is <code>SCORED</code></div>
+          <div class="limit-item"><div class="dot green"></div>Accessed via the Cycle endpoint in the v2 API</div>
+        </div>
+      </div>
+
+      <!-- Workout -->
+      <div class="sub-section">
+        <h4>🏋️ Workout</h4>
+        <div class="limits-grid">
+          <div class="limit-item"><div class="dot green"></div>Fields: <code>id</code> (UUID), <code>user_id</code>, <code>start</code>, <code>end</code>, <code>sport_name</code>, <code>score_state</code>, <code>score</code></div>
+          <div class="limit-item"><div class="dot green"></div>Score includes: strain, avg/max heart rate, kilojoules, distance, altitude, HR zone durations</div>
+          <div class="limit-item"><div class="dot green"></div>100+ sport types supported (Running, Yoga, Gaming, Cooking, and more)</div>
+          <div class="limit-item"><div class="dot"></div><code>v1_id</code> and <code>sport_id</code> will <strong>&nbsp;not exist past 09/01/2025&nbsp;</strong></div>
+        </div>
+      </div>
+
+      <!-- User -->
+      <div class="sub-section">
+        <h4>👤 User</h4>
+        <div class="two-col" style="gap:0.8rem">
+          <div>
+            <div class="info-row"><span>Basic Profile</span></div>
+            <div class="info-row"><span>user_id, email</span></div>
+            <div class="info-row"><span>first_name, last_name</span></div>
+          </div>
+          <div>
+            <div class="info-row"><span>Body Measurements</span></div>
+            <div class="info-row"><span>height_meter</span></div>
+            <div class="info-row"><span>weight_kilogram, max_heart_rate</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 6. PAGINATION -->
+  <div class="card" id="pagination">
+    <div class="card-header">
+      <span class="icon">📄</span>
+      <h2>6. Pagination</h2>
+      <span class="badge">API</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="section-title">Steps</div>
+        <ol class="steps-list">
+          <li>Make a request to a collection endpoint (Cycle, Sleep, Recovery, Workout)</li>
+          <li>Response includes a <code>records</code> array and a <code>next_token</code> string</li>
+          <li>Pass <code>next_token</code> as a query parameter on the next request</li>
+          <li>Repeat until <code>next_token</code> is empty — no more pages</li>
+          <li>Use the <code>limit</code> query parameter to control how many records per page</li>
+        </ol>
+      </div>
+      <hr class="divider"/>
+      <div>
+        <div class="section-title">Limits</div>
+        <div class="limits-grid">
+          <div class="limit-item"><div class="dot"></div>Each endpoint has a <strong>&nbsp;max allowed value&nbsp;</strong> for <code>limit</code> (specified per endpoint in API docs)</div>
+          <div class="limit-item"><div class="dot green"></div>Estimated data size: ~<strong>&nbsp;4 KB/day&nbsp;</strong> per member (1 workout + 1 sleep + 1 recovery)</div>
+          <div class="limit-item"><div class="dot green"></div>Each additional workout or nap adds ~<strong>&nbsp;1 KB&nbsp;</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. RATE LIMITING -->
+  <div class="card" id="ratelimiting">
+    <div class="card-header">
+      <span class="icon">⏱️</span>
+      <h2>7. API Rate Limiting</h2>
+      <span class="badge">Limits</span>
+    </div>
+    <div class="card-body">
+
+      <div class="two-col">
+        <div class="sub-section">
+          <h4>Default Limits</h4>
+          <div class="info-row"><span>Per minute</span><span style="color:#ffd93d">100 requests</span></div>
+          <div class="info-row"><span>Per day</span><span style="color:#ffd93d">10,000 requests</span></div>
+          <div class="info-row"><span>Exceeded response</span><span style="color:#ff6b6b">429 Too Many Requests</span></div>
+        </div>
+        <div class="sub-section">
+          <h4>Response Headers</h4>
+          <div class="info-row"><span><code>X-RateLimit-Limit</code></span></div>
+          <div style="font-size:0.75rem;color:#888;padding:0.2rem 0 0.5rem">Current limit &amp; time window</div>
+          <div class="info-row"><span><code>X-RateLimit-Remaining</code></span></div>
+          <div style="font-size:0.75rem;color:#888;padding:0.2rem 0 0.5rem">Requests remaining in window</div>
+          <div class="info-row"><span><code>X-RateLimit-Reset</code></span></div>
+          <div style="font-size:0.75rem;color:#888;padding:0.2rem 0">Seconds until limit resets</div>
+        </div>
+      </div>
+
+      <div class="note">
+        Rate limit increases are available on request — submit via the WHOOP Developer Dashboard form.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 8. WEBHOOKS -->
+  <div class="card" id="webhooks">
+    <div class="card-header">
+      <span class="icon">🔔</span>
+      <h2>8. Webhooks</h2>
+      <span class="badge">Events</span>
+    </div>
+    <div class="card-body">
+
+      <div>
+        <div class="section-title">Setup Steps</div>
+        <ol class="steps-list">
+          <li>Create an HTTPS endpoint that accepts POST requests and validates signatures</li>
+          <li>Add the URL to your app's Webhook URL section in the Developer Dashboard</li>
+          <li>Select model version: <span class="tag tag-green">v2 (recommended, UUID)</span> or <span class="tag tag-yellow">v1 (legacy, integer)</span></li>
+          <li>Save the app configuration</li>
+        </ol>
+      </div>
+
+      <div>
+        <div class="section-title">Event Types</div>
+        <div class="limits-grid">
+          <div class="limit-item"><div class="dot green"></div><code>workout.updated</code> / <code>workout.deleted</code></div>
+          <div class="limit-item"><div class="dot green"></div><code>sleep.updated</code> / <code>sleep.deleted</code></div>
+          <div class="limit-item"><div class="dot green"></div><code>recovery.updated</code> / <code>recovery.deleted</code></div>
+          <div class="limit-item"><div class="dot yellow"></div>Create events are published as "updated" events</div>
+          <div class="limit-item"><div class="dot"></div>No webhooks for Day Strain, Cycles, or body measurements — use API directly</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Signature Validation Steps</div>
+        <ol class="steps-list">
+          <li>Prepend the <code>X-WHOOP-Signature-Timestamp</code> header value to the raw request body</li>
+          <li>Generate a <strong>SHA256 HMAC</strong> using your Client Secret as the key</li>
+          <li>Base64-encode the result</li>
+          <li>Compare to the <code>X-WHOOP-Signature</code> header — drop the request if they don't match</li>
+        </ol>
+      </div>
+
+      <div>
+        <div class="section-title">Limits &amp; Rules</div>
+        <div class="limits-grid">
+          <div class="limit-item"><div class="dot"></div>WHOOP retries failed deliveries <strong>&nbsp;5 times over ~1 hour&nbsp;</strong></div>
+          <div class="limit-item"><div class="dot"></div>A unique endpoint is required <strong>&nbsp;per app&nbsp;</strong></div>
+          <div class="limit-item"><div class="dot yellow"></div>Webhooks are <strong>&nbsp;notifications only&nbsp;</strong> — you must call the API for actual data</div>
+          <div class="limit-item"><div class="dot yellow"></div>Duplicate webhooks are possible — use <code>trace_id</code> to detect them</div>
+          <div class="limit-item"><div class="dot yellow"></div>Webhooks can be missed — implement a reconciliation job as backup</div>
+          <div class="limit-item"><div class="dot green"></div>Revoking a user's access token stops all webhooks for that user</div>
+          <div class="limit-item"><div class="dot"></div>v1 webhooks are <strong>&nbsp;no longer published&nbsp;</strong></div>
+        </div>
+      </div>
+
+      <div class="note">
+        Best practice: return a 2XX status within 1 second and process events asynchronously via a queue to avoid delivery failures.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 9. MIGRATION -->
+  <div class="card" id="migration">
+    <div class="card-header">
+      <span class="icon">🔀</span>
+      <h2>9. v1 → v2 Migration</h2>
+      <span class="badge">Migration</span>
+    </div>
+    <div class="card-body">
+
+      <div class="two-col">
+        <div class="sub-section">
+          <h4>Key Changes</h4>
+          <div class="info-row"><span>Sleep &amp; Workout IDs</span><span style="color:#ffd93d">long → UUID</span></div>
+          <div class="info-row"><span>Recovery webhook ID (v2)</span><span style="color:#ffd93d">cycle ID → sleep UUID</span></div>
+          <div class="info-row"><span>v1 API status</span><span style="color:#ff6b6b">No longer supported</span></div>
+          <div class="info-row"><span>New features</span><span style="color:#00d4aa">v2 only</span></div>
+        </div>
+        <div class="sub-section">
+          <h4>Endpoint Changes</h4>
+          <div class="info-row"><span><code>/v1/activity/sleep</code></span></div>
+          <div style="text-align:center; color:#666; font-size:0.8rem">↓</div>
+          <div class="info-row"><span><code>/v2/activity/sleep</code></span></div>
+          <div class="info-row"><span><code>/v1/activity/workout</code></span></div>
+          <div style="text-align:center; color:#666; font-size:0.8rem">↓</div>
+          <div class="info-row"><span><code>/v2/activity/workout</code></span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Migration Steps</div>
+        <ol class="steps-list">
+          <li>Update all API endpoint calls from <code>/v1/</code> to <code>/v2/</code></li>
+          <li>For existing stored v1 IDs, use <code>GET /v1/activity-mapping/{activityV1Id}</code> for a one-time ID lookup</li>
+          <li>Update code to handle UUIDs instead of long integers for Sleep and Workout IDs</li>
+          <li>Update webhook configuration to v2 model version in the Dashboard</li>
+          <li>Update response handling for new Optional field patterns</li>
+          <li>Test thoroughly with both v1 and v2 endpoints before switching production traffic</li>
+        </ol>
+      </div>
+
+      <div>
+        <div class="section-title">Limits &amp; Warnings</div>
+        <div class="limits-grid">
+          <div class="limit-item"><div class="dot"></div>The mapping endpoint (<code>/v1/activity-mapping/</code>) is for <strong>&nbsp;migration only&nbsp;</strong> — do not use in production</div>
+          <div class="limit-item"><div class="dot"></div>v1 webhooks are <strong>&nbsp;no longer published&nbsp;</strong></div>
+          <div class="limit-item"><div class="dot yellow"></div>Webhook model version must align with the API version you're calling</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 10. APP APPROVAL -->
+  <div class="card" id="approval">
+    <div class="card-header">
+      <span class="icon">✅</span>
+      <h2>10. App Approval</h2>
+      <span class="badge">Launch</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="section-title">Steps</div>
+        <ol class="steps-list">
+          <li>Read and comply with the WHOOP API Terms of Use</li>
+          <li>Test your app with at least <strong>1 WHOOP member</strong></li>
+          <li>Verify App Name, Contact Email(s), and Privacy Policy URL are correct in the Dashboard</li>
+          <li>Ensure compliance with WHOOP Design &amp; Brand Guidelines</li>
+          <li>Submit an App Submission request with designs and context via the form</li>
+        </ol>
+      </div>
+      <hr class="divider"/>
+      <div>
+        <div class="section-title">Limits
