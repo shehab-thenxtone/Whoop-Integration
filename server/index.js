@@ -79,14 +79,25 @@ function requireAuth(req, res, next) {
 
 // ── API proxy routes (v2) ─────────────────────────────────────────────────────
 
-// Profile stays on v1 — no v2 equivalent in the migration guide
 app.get('/api/profile', requireAuth, async (req, res) => {
   try {
-    const data = await whoopGet('v1/user/profile/basic', req.session.access_token, req.session);
+    const data = await whoopGet('v2/user/profile/basic', req.session.access_token, req.session);
     console.log('[GET /api/profile] ok');
     res.json(data);
   } catch (err) {
     console.error('[GET /api/profile]', err.message);
+    res.status(502).json({ error: err.message });
+  }
+});
+
+// Body measurements — height, weight, max heart rate
+app.get('/api/body', requireAuth, async (req, res) => {
+  try {
+    const data = await whoopGet('v2/user/measurement/body', req.session.access_token, req.session);
+    console.log('[GET /api/body] ok');
+    res.json(data);
+  } catch (err) {
+    console.error('[GET /api/body]', err.message);
     res.status(502).json({ error: err.message });
   }
 });
@@ -183,5 +194,5 @@ app.use((err, req, res, _next) => {
 
 app.listen(PORT, () => {
   console.log(`[server] running on http://localhost:${PORT}`);
-  console.log('[server] v2 routes: /api/profile(v1)  /api/recovery  /api/sleep  /api/sleep-history  /api/cycle  /api/workouts');
+  console.log('[server] v2 routes: /api/profile  /api/body  /api/recovery  /api/sleep  /api/sleep-history  /api/cycle  /api/workouts');
 });

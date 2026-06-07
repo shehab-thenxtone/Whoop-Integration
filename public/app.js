@@ -165,17 +165,19 @@ async function init() {
 
   showDashboard(profile);
 
-  const [recovery, cycle, sleep, workouts, sleepHistory] = await Promise.allSettled([
+  const [recovery, cycle, sleep, workouts, sleepHistory, body] = await Promise.allSettled([
     fetch('/api/recovery').then(r => r.json()),
     fetch('/api/cycle').then(r => r.json()),
     fetch('/api/sleep').then(r => r.json()),
     fetch('/api/workouts').then(r => r.json()),
     fetch('/api/sleep-history').then(r => r.json()),
+    fetch('/api/body').then(r => r.json()),
   ]);
 
   renderOverview(recovery, cycle, sleep, sleepHistory);
   renderHistory(recovery, sleepHistory);
   renderWorkouts(workouts);
+  renderProfile(profile, body);
 
   setText('sync-time', 'Synced ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
@@ -254,6 +256,26 @@ function renderOverview(recoveryResult, cycleResult, sleepResult, sleepHistoryRe
   if (perf     != null) setTimeout(function() { setRing('ring-sleep', perf, 100); }, 300);
   if (respRate != null) setBar('bar-resp', clamp((20 - respRate) / 8 * 100, 0, 100));
 
+  // Sleep efficiency, consistency, cycles, disturbances
+  setText('val-sleep-eff', ssc.sleep_efficiency_percentage != null ? Math.round(ssc.sleep_efficiency_percentage) + '%' : '—');
+  setText('val-sleep-cons', ssc.sleep_consistency_percentage != null ? Math.round(ssc.sleep_consistency_percentage) + '%' : '—');
+  setText('val-sleep-cycles', stages.sleep_cycle_count != null ? stages.sleep_cycle_count : '—');
+  setText('val-disturbances', stages.disturbance_count != null ? stages.disturbance_count : '—');
+
+  // Sleep need breakdown
+  var sleepNeeded = ssc.sleep_needed || {};
+  var totalNeededMs = (sleepNeeded.baseline_milli || 0)
+    + (sleepNeeded.need_from_sleep_debt_milli || 0)
+    + (sleepNeeded.need_from_recent_strain_milli || 0)
+    - (sleepNeeded.need_from_recent_nap_milli || 0);
+  var actualMs = stages.total_in_bed_time_milli || 0;
+  if (totalNeededMs > 0) {
+    var pct = Math.min(100, (actualMs / totalNeededMs) * 100);
+    var needBar = document.getElementById('sleep-need-bar');
+    if (needBar) needBar.style.width = pct + '%';
+    setText('sleep-need-values', 'needed ' + msToHours(totalNeededMs) + ' · got ' + msToHours(actualMs));
+  }
+
   renderSleepStages(ssc.stage_summary);
   renderCharts(recRecords, sleepHistoryResult);
 }
@@ -308,6 +330,23 @@ function renderCharts(recRecords, sleepHistoryResult) {
       }],
     },
     options: lineOpts(' ms', 20, null),
+  });
+
+  // RHR 7-day
+  makeChart('chart-rhr', {
+    type: 'line',
+    data: {
+      labels: dayLabels(last7),
+      datasets: [{
+        data: last7.map(r => r.score && r.score.resting_heart_rate != null ? Math.round(r.score.resting_heart_rate) : null),
+        borderColor: C.blue,
+        backgroundColor: 'rgba(74,158,255,0.08)',
+        borderWidth: 2, pointRadius: 4,
+        pointBackgroundColor: C.blue, pointBorderColor: 'transparent',
+        tension: 0.4, fill: true, spanGaps: true,
+      }],
+    },
+    options: lineOpts(' bpm', 30, 90),
   });
 
   // Recovery 30-day bar
@@ -413,7 +452,7 @@ function renderHistory(recoveryResult, sleepHistoryResult) {
   const sleepBody = document.getElementById('sleep-history-body');
   if (sleepBody) {
     if (!sleepRecords.length) {
-      sleepBody.innerHTML = '<tr><td colspan="7" class="empty-row">No sleep history available</td></tr>';
+      sleepBody.innerHTML = '<tr><td colspan="8" class="empty-row">No sleep history available</td></tr>';
     } else {
       sleepBody.innerHTML = sleepRecords.map(function(r) {
         const s      = r.score || {};
@@ -422,11 +461,12 @@ function renderHistory(recoveryResult, sleepHistoryResult) {
         return '<tr>'
           + '<td>' + fmtDate(r.start) + '</td>'
           + '<td>' + (perf != null ? Math.round(perf) + '%' : '—') + '</td>'
+          + '<td>' + (s.sleep_efficiency_percentage != null ? Math.round(s.sleep_efficiency_percentage) + '%' : '—') + '</td>'
+          + '<td>' + (s.sleep_consistency_percentage != null ? Math.round(s.sleep_consistency_percentage) + '%' : '—') + '</td>'
           + '<td>' + msToHours(stages.total_in_bed_time_milli) + '</td>'
           + '<td>' + msToHours(stages.total_slow_wave_sleep_time_milli) + '</td>'
           + '<td>' + msToHours(stages.total_rem_sleep_time_milli) + '</td>'
-          + '<td>' + msToHours(stages.total_light_sleep_time_milli) + '</td>'
-          + '<td>' + (s.respiratory_rate != null ? fmt(s.respiratory_rate, 1) + ' rpm' : '—') + '</td>'
+          + '<td>' + (stages.disturbance_count != null ? stages.disturbance_count : '—') + '</td>'
           + '</tr>';
       }).join('');
     }
@@ -439,6 +479,34 @@ function renderWorkouts(result) {
   if (!tbody) return;
 
   const records = safeRecords(result);
+
+  // Zone bars for most recent workout
+  var latest = records[0];
+  var zonesEl = document.getElementById('hr-zones-bars');
+  var zonesLabel = document.getElementById('zones-workout-label');
+  if (zonesEl && latest) {
+    var zd = (latest.score && latest.score.zone_durations) || {};
+    var zones = [
+      { label: 'Zone 0', ms: zd.zone_zero_milli  || 0, color: '#334155' },
+      { label: 'Zone 1', ms: zd.zone_one_milli   || 0, color: '#1d4ed8' },
+      { label: 'Zone 2', ms: zd.zone_two_milli   || 0, color: '#065f46' },
+      { label: 'Zone 3', ms: zd.zone_three_milli || 0, color: '#92400e' },
+      { label: 'Zone 4', ms: zd.zone_four_milli  || 0, color: '#7f1d1d' },
+      { label: 'Zone 5', ms: zd.zone_five_milli  || 0, color: '#4c0519' },
+    ];
+    var totalMs = zones.reduce(function(s, z) { return s + z.ms; }, 0) || 1;
+    zonesEl.innerHTML = zones.map(function(z) {
+      var pct = (z.ms / totalMs * 100).toFixed(1);
+      var labelColor = z.color === '#334155' ? '#94a3b8' : z.color;
+      return '<div class="zone-row">'
+        + '<div class="zone-label" style="color:' + labelColor + '">' + z.label + '</div>'
+        + '<div class="zone-bar-bg"><div class="zone-bar" style="width:' + pct + '%;background:' + z.color + '"></div></div>'
+        + '<div class="zone-time">' + msToHours(z.ms) + '</div>'
+        + '</div>';
+    }).join('');
+    if (zonesLabel) zonesLabel.textContent = (latest.sport_name || sportName(latest.sport_id)) + ' · Strain ' + (latest.score && latest.score.strain != null ? fmt(latest.score.strain, 1) : '—');
+  }
+
   if (!records.length) {
     const isErr = result.status === 'rejected' || (result.value && result.value.error);
     tbody.innerHTML = '<tr><td colspan="7" class="' + (isErr ? 'error-row' : 'empty-row') + '">'
@@ -460,6 +528,26 @@ function renderWorkouts(result) {
       + '<td>' + (kcal != null ? kcal.toLocaleString() + ' kcal' : '—') + '</td>'
       + '</tr>';
   }).join('');
+}
+
+// ── Profile ───────────────────────────────────────────────────────────────────
+function renderProfile(profile, bodyResult) {
+  var initials = profile && profile.first_name
+    ? (profile.first_name[0] + (profile.last_name ? profile.last_name[0] : '')).toUpperCase()
+    : '?';
+  setText('profile-avatar-lg', initials);
+  setText('profile-full-name', profile && profile.first_name
+    ? (profile.first_name + ' ' + (profile.last_name || '')).trim()
+    : '—');
+  setText('profile-email', (profile && profile.email) || '—');
+
+  var body = bodyResult && bodyResult.status === 'fulfilled' && !bodyResult.value.error
+    ? bodyResult.value : null;
+  if (body) {
+    setText('stat-height', body.height_meter ? Math.round(body.height_meter * 100) : '—');
+    setText('stat-weight', body.weight_kilogram ? Number(body.weight_kilogram).toFixed(1) : '—');
+    setText('stat-max-hr', body.max_heart_rate || '—');
+  }
 }
 
 // ── Refresh button ────────────────────────────────────────────────────────────

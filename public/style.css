@@ -556,6 +556,190 @@ footer p { font-size: 12px; color: var(--muted); }
 .privacy-link { color: var(--muted); text-decoration: none; transition: color 0.15s; }
 .privacy-link:hover { color: var(--green); }
 
+/* ── Profile panel ───────────────────────────────────────────────────────── */
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 28px;
+  margin-bottom: 16px;
+}
+
+.profile-avatar-lg {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple), var(--blue));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  font-family: var(--mono);
+}
+
+.profile-full-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.profile-email {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.body-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.body-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px;
+  text-align: center;
+}
+
+.body-stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.body-stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: #fff;
+  font-family: var(--mono);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.body-stat-unit {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── Sleep metrics row (inside sleep tile) ───────────────────────────────── */
+.sleep-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.sleep-metric-item {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.sleep-metric-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sleep-metric-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  font-family: var(--mono);
+}
+
+/* ── Sleep need bar ──────────────────────────────────────────────────────── */
+.sleep-need-wrap { margin-bottom: 12px; }
+
+.sleep-need-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.sleep-need-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.sleep-need-values { color: var(--muted); }
+
+.sleep-need-track {
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.sleep-need-bar {
+  height: 100%;
+  background: var(--purple);
+  border-radius: 3px;
+  width: 0;
+  transition: width 1s ease;
+}
+
+/* ── HR Zone bars (workout panel) ────────────────────────────────────────── */
+.hr-zones { display: flex; flex-direction: column; gap: 8px; }
+
+.zone-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.zone-label {
+  width: 50px;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.zone-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.zone-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s ease;
+}
+
+.zone-time {
+  width: 40px;
+  text-align: right;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
   .metrics-row { grid-template-columns: repeat(3, 1fr); }

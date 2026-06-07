@@ -53,6 +53,7 @@
       <button class="page-tab active" onclick="switchPanel('overview', this)">📊 Overview</button>
       <button class="page-tab" onclick="switchPanel('history', this)">📈 History</button>
       <button class="page-tab" onclick="switchPanel('workouts', this)">🏃 Workouts</button>
+      <button class="page-tab" onclick="switchPanel('profile', this)">👤 Profile</button>
     </nav>
 
     <!-- ════ OVERVIEW PANEL ════ -->
@@ -193,6 +194,17 @@
         <div class="chart-tile">
           <div class="tile-header">
             <div class="tile-header-left">
+              <div class="tile-title">Resting HR · 7-day trend</div>
+              <span class="tile-info">i<span class="info-tooltip"><strong>Resting Heart Rate Trend</strong>Your lowest HR measured during deep sleep each morning. A downward trend indicates improving fitness. Upward spikes may signal fatigue, illness, or overtraining.</span></span>
+            </div>
+            <div class="tile-badge">bpm</div>
+          </div>
+          <canvas id="chart-rhr" height="130"></canvas>
+        </div>
+
+        <div class="chart-tile">
+          <div class="tile-header">
+            <div class="tile-header-left">
               <div class="tile-title">Last night's sleep stages</div>
               <span class="tile-info">i<span class="info-tooltip"><strong>Sleep Stage Breakdown</strong>Time in Awake, Light, Deep (SWS), and REM stages. Deep sleep drives physical repair; REM drives cognitive restoration. Whoop uses accelerometer + PPG for staging.</span></span>
             </div>
@@ -200,6 +212,37 @@
           </div>
           <div class="sleep-stages-bar" id="sleep-stages-bar"></div>
           <div class="stage-legend" id="sleep-stages-legend"></div>
+          <div class="sleep-metrics-row">
+            <div class="sleep-metric-item">
+              <div class="sleep-metric-label">Efficiency
+                <span class="tile-info">i<span class="info-tooltip info-tt-left"><strong>Sleep Efficiency</strong>Percentage of time in bed actually spent asleep. 85%+ is optimal. Low efficiency may indicate insomnia or frequent disturbances.</span></span>
+              </div>
+              <div class="sleep-metric-val" id="val-sleep-eff">—</div>
+            </div>
+            <div class="sleep-metric-item">
+              <div class="sleep-metric-label">Consistency
+                <span class="tile-info">i<span class="info-tooltip info-tt-left"><strong>Sleep Consistency</strong>How closely your sleep and wake times match your recent schedule. Higher consistency improves circadian rhythm and recovery quality.</span></span>
+              </div>
+              <div class="sleep-metric-val" id="val-sleep-cons">—</div>
+            </div>
+            <div class="sleep-metric-item">
+              <div class="sleep-metric-label">Cycles</div>
+              <div class="sleep-metric-val" id="val-sleep-cycles">—</div>
+            </div>
+            <div class="sleep-metric-item">
+              <div class="sleep-metric-label">Disturbances</div>
+              <div class="sleep-metric-val" id="val-disturbances">—</div>
+            </div>
+          </div>
+          <div class="sleep-need-wrap">
+            <div class="sleep-need-top">
+              <span class="sleep-need-label">Sleep need</span>
+              <span class="sleep-need-values" id="sleep-need-values">—</span>
+            </div>
+            <div class="sleep-need-track">
+              <div class="sleep-need-bar" id="sleep-need-bar"></div>
+            </div>
+          </div>
           <canvas id="chart-sleep" height="90"></canvas>
         </div>
 
@@ -273,15 +316,16 @@
               <tr>
                 <th>Date</th>
                 <th>Performance</th>
+                <th>Efficiency</th>
+                <th>Consistency</th>
                 <th>In Bed</th>
                 <th>Deep (SWS)</th>
                 <th>REM</th>
-                <th>Light</th>
-                <th>Resp. Rate</th>
+                <th>Disturbances</th>
               </tr>
             </thead>
             <tbody id="sleep-history-body">
-              <tr><td colspan="7" class="loading-row">Loading…</td></tr>
+              <tr><td colspan="8" class="loading-row">Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -291,6 +335,17 @@
 
     <!-- ════ WORKOUTS PANEL ════ -->
     <div class="panel" id="panel-workouts">
+
+      <div class="chart-tile" id="zones-tile" style="margin-bottom:16px">
+        <div class="tile-header">
+          <div class="tile-header-left">
+            <div class="tile-title">HR zones · latest workout</div>
+            <span class="tile-info">i<span class="info-tooltip"><strong>Heart Rate Zone Breakdown</strong>Time spent in each HR zone (0–5) during your most recent workout. Zone 0 = rest, Zone 5 = max effort. Zone 3–4 builds aerobic base; Zone 5 drives VO₂ max gains.</span></span>
+          </div>
+          <div class="tile-badge" id="zones-workout-label">—</div>
+        </div>
+        <div class="hr-zones" id="hr-zones-bars"></div>
+      </div>
 
       <h2 class="section-title">Recent Workouts</h2>
       <div class="table-wrap">
@@ -313,6 +368,37 @@
       </div>
 
     </div><!-- /panel-workouts -->
+
+    <!-- ════ PROFILE PANEL ════ -->
+    <div class="panel" id="panel-profile">
+
+      <div class="profile-hero">
+        <div class="profile-avatar-lg" id="profile-avatar-lg">?</div>
+        <div class="profile-details">
+          <div class="profile-full-name" id="profile-full-name">—</div>
+          <div class="profile-email" id="profile-email">Loading…</div>
+        </div>
+      </div>
+
+      <div class="body-stats-row">
+        <div class="body-stat-card">
+          <div class="body-stat-label">Height</div>
+          <div class="body-stat-value" id="stat-height">—</div>
+          <div class="body-stat-unit">cm</div>
+        </div>
+        <div class="body-stat-card">
+          <div class="body-stat-label">Weight</div>
+          <div class="body-stat-value" id="stat-weight">—</div>
+          <div class="body-stat-unit">kg</div>
+        </div>
+        <div class="body-stat-card">
+          <div class="body-stat-label">Max Heart Rate</div>
+          <div class="body-stat-value" id="stat-max-hr">—</div>
+          <div class="body-stat-unit">bpm</div>
+        </div>
+      </div>
+
+    </div><!-- /panel-profile -->
 
     <footer>
       <p>Real Whoop data · <a href="/privacy" target="_blank" rel="noopener" class="privacy-link">Privacy Policy</a></p>
