@@ -1,5 +1,5 @@
 const TOKEN_URL = 'https://api.prod.whoop.com/oauth/oauth2/token';
-const API_BASE = 'https://api.prod.whoop.com/developer/v1';
+const API_BASE = 'https://api.prod.whoop.com/developer';
 
 async function exchangeCode(code) {
   const body = new URLSearchParams({
@@ -53,7 +53,9 @@ async function whoopGet(path, token, session) {
   let currentToken = token;
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    const res = await fetch(`${API_BASE}/${path}`, {
+    const url = `${API_BASE}/${path}`;
+    console.log(`[WHOOP] → ${url}`);
+    const res = await fetch(url, {
       headers: { Authorization: `Bearer ${currentToken}` },
     });
 
@@ -76,6 +78,7 @@ async function whoopGet(path, token, session) {
 
     if (!res.ok) {
       const text = await res.text();
+      console.error(`[WHOOP] ${path} → HTTP ${res.status} (${res.headers.get('content-type')}):`, text);
       throw new Error(`Whoop API error ${res.status}: ${text}`);
     }
 

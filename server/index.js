@@ -19,6 +19,11 @@ app.use(session({
   cookie: { secure: false },
 }));
 
+app.use((req, res, next) => {
+  console.log(`[req] ${req.method} ${req.path}`);
+  next();
+});
+
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
@@ -30,7 +35,7 @@ app.get('/privacy', (req, res) => {
 // ── Auth routes ──────────────────────────────────────────────────────────────
 
 app.get('/auth/login', (req, res) => {
-  const state = crypto.randomBytes(16).toString('hex'); // 32 chars
+  const state = crypto.randomBytes(16).toString('hex');
   req.session.oauthState = state;
 
   const params = new URLSearchParams({
@@ -38,7 +43,7 @@ app.get('/auth/login', (req, res) => {
     redirect_uri: process.env.WHOOP_REDIRECT_URI,
     response_type: 'code',
     scope: SCOPES,
-    state: state,
+    state,
   });
   res.redirect(`${WHOOP_AUTH_URL}?${params}`);
 });
@@ -54,7 +59,7 @@ app.get('/auth/callback', async (req, res) => {
     req.session.refresh_token = tokens.refresh_token;
     res.redirect('/');
   } catch (err) {
-    console.error('OAuth callback error:', err.message);
+    console.error('[auth/callback]', err.message);
     res.status(502).send(renderErrorPage(502, err.message));
   }
 });
@@ -63,7 +68,7 @@ app.get('/auth/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/'));
 });
 
-// ── API proxy routes (Phase 3) ───────────────────────────────────────────────
+// ── Auth guard ────────────────────────────────────────────────────────────────
 
 function requireAuth(req, res, next) {
   if (!req.session.access_token) {
@@ -72,56 +77,76 @@ function requireAuth(req, res, next) {
   next();
 }
 
+// ── API proxy routes (v2) ─────────────────────────────────────────────────────
+
+// Profile stays on v1 — no v2 equivalent in the migration guide
 app.get('/api/profile', requireAuth, async (req, res) => {
   try {
-    const data = await whoopGet('user/profile/basic', req.session.access_token, req.session);
+    const data = await whoopGet('v1/user/profile/basic', req.session.access_token, req.session);
+    console.log('[GET /api/profile] ok');
     res.json(data);
   } catch (err) {
+    console.error('[GET /api/profile]', err.message);
     res.status(502).json({ error: err.message });
   }
 });
 
+// 25 records — overview charts + recovery history tab
 app.get('/api/recovery', requireAuth, async (req, res) => {
   try {
-    const data = await whoopGet('recovery?limit=25', req.session.access_token, req.session);
+    const data = await whoopGet('v2/recovery?limit=25', req.session.access_token, req.session);
+    console.log('[GET /api/recovery] records:', data?.records?.length ?? 0);
     res.json(data);
   } catch (err) {
+    console.error('[GET /api/recovery]', err.message);
     res.status(502).json({ error: err.message });
   }
 });
 
-app.get('/activity/sleep', requireAuth, async (req, res) => {
+// Latest sleep for overview (stages bar + sleep ring)
+app.get('/api/sleep', requireAuth, async (req, res) => {
   try {
-    const data = await whoopGet('activity/sleep?limit=14', req.session.access_token, req.session);
+    const data = await whoopGet('v2/activity/sleep?limit=1', req.session.access_token, req.session);
+    console.log('[GET /api/sleep] records:', data?.records?.length ?? 0);
     res.json(data);
   } catch (err) {
+    console.error('[GET /api/sleep]', err.message);
     res.status(502).json({ error: err.message });
   }
 });
 
+// 25 sleep sessions — history tab + sleep performance chart
+app.get('/api/sleep-history', requireAuth, async (req, res) => {
+  try {
+    const data = await whoopGet('v2/activity/sleep?limit=25', req.session.access_token, req.session);
+    console.log('[GET /api/sleep-history] records:', data?.records?.length ?? 0);
+    res.json(data);
+  } catch (err) {
+    console.error('[GET /api/sleep-history]', err.message);
+    res.status(502).json({ error: err.message });
+  }
+});
+
+// Current day cycle — strain + calories
 app.get('/api/cycle', requireAuth, async (req, res) => {
   try {
-    const data = await whoopGet('cycle?limit=1', req.session.access_token, req.session);
+    const data = await whoopGet('v2/cycle?limit=1', req.session.access_token, req.session);
+    console.log('[GET /api/cycle] records:', data?.records?.length ?? 0);
     res.json(data);
   } catch (err) {
+    console.error('[GET /api/cycle]', err.message);
     res.status(502).json({ error: err.message });
   }
 });
 
-app.get('/activity/sleep', requireAuth, async (req, res) => {
+// Last 5 workouts
+app.get('/api/workouts', requireAuth, async (req, res) => {
   try {
-    const data = await whoopGet('activity/sleep?limit=1', req.session.access_token, req.session);
+    const data = await whoopGet('v2/activity/workout?limit=5', req.session.access_token, req.session);
+    console.log('[GET /api/workouts] records:', data?.records?.length ?? 0);
     res.json(data);
   } catch (err) {
-    res.status(502).json({ error: err.message });
-  }
-});
-
-app.get('/activity/workout', requireAuth, async (req, res) => {
-  try {
-    const data = await whoopGet('activity/workout?limit=5', req.session.access_token, req.session);
-    res.json(data);
-  } catch (err) {
+    console.error('[GET /api/workouts]', err.message);
     res.status(502).json({ error: err.message });
   }
 });
@@ -137,13 +162,13 @@ app.get('/status/:code', (req, res) => {
   if (isNaN(code) || code < 100 || code > 599) {
     return res.status(400).send(renderErrorPage(400, 'Status code must be a number between 100 and 599.'));
   }
-  // 3xx codes: serve without a Location header so browsers display the body
   res.status(code).send(renderErrorPage(code));
 });
 
 // ── 404 catch-all ─────────────────────────────────────────────────────────────
 
 app.use((req, res) => {
+  console.warn('[404]', req.method, req.path);
   res.status(404).send(renderErrorPage(404));
 });
 
@@ -151,9 +176,12 @@ app.use((req, res) => {
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, _next) => {
-  console.error('Unhandled error:', err.message);
+  console.error('[500]', err.message);
   const code = err.status || err.statusCode || 500;
   res.status(code).send(renderErrorPage(code, err.message));
 });
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`[server] running on http://localhost:${PORT}`);
+  console.log('[server] v2 routes: /api/profile(v1)  /api/recovery  /api/sleep  /api/sleep-history  /api/cycle  /api/workouts');
+});

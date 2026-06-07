@@ -168,9 +168,9 @@ async function init() {
   const [recovery, cycle, sleep, workouts, sleepHistory] = await Promise.allSettled([
     fetch('/api/recovery').then(r => r.json()),
     fetch('/api/cycle').then(r => r.json()),
-    fetch('/activity/sleep').then(r => r.json()),
-    fetch('/activity/workout').then(r => r.json()),
-    fetch('/activity/sleep').then(r => r.json()),
+    fetch('/api/sleep').then(r => r.json()),
+    fetch('/api/workouts').then(r => r.json()),
+    fetch('/api/sleep-history').then(r => r.json()),
   ]);
 
   renderOverview(recovery, cycle, sleep, sleepHistory);
@@ -452,7 +452,7 @@ function renderWorkouts(result) {
     const kcal = s.kilojoule != null ? Math.round(s.kilojoule / 4.184) : null;
     return '<tr>'
       + '<td>' + fmtDate(w.start) + '</td>'
-      + '<td>' + sportName(w.sport_id) + '</td>'
+      + '<td>' + (w.sport_name || sportName(w.sport_id)) + '</td>'
       + '<td>' + (s.strain != null ? fmt(s.strain, 1) : '—') + '</td>'
       + '<td>' + dur + '</td>'
       + '<td>' + (s.average_heart_rate != null ? Math.round(s.average_heart_rate) + ' bpm' : '—') + '</td>'
