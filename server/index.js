@@ -1,14 +1,16 @@
 require('dotenv').config();
+const crypto = require('crypto');
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const { exchangeCode, whoopGet } = require('./whoop');
+const { renderErrorPage, renderGallery } = require('./errorPage');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 const WHOOP_AUTH_URL = 'https://api.prod.whoop.com/oauth/oauth2/auth';
-const SCOPES = 'read:recovery read:cycles read:sleep read:workouts read:profile offline';
+const SCOPES = 'read:recovery read:cycles read:sleep read:workout read:body_measurement read:profile offline';
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret',
@@ -21,14 +23,22 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
+app.get('/privacy', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/privacy.html'));
+});
+
 // ── Auth routes ──────────────────────────────────────────────────────────────
 
 app.get('/auth/login', (req, res) => {
+  const state = crypto.randomBytes(16).toString('hex'); // 32 chars
+  req.session.oauthState = state;
+
   const params = new URLSearchParams({
     client_id: process.env.WHOOP_CLIENT_ID,
     redirect_uri: process.env.WHOOP_REDIRECT_URI,
     response_type: 'code',
     scope: SCOPES,
+    state: state,
   });
   res.redirect(`${WHOOP_AUTH_URL}?${params}`);
 });
@@ -36,7 +46,7 @@ app.get('/auth/login', (req, res) => {
 app.get('/auth/callback', async (req, res) => {
   const { code, error } = req.query;
   if (error || !code) {
-    return res.redirect('/?error=oauth_denied');
+    return res.status(400).send(renderErrorPage(400, 'OAuth authorisation was denied or the request was invalid.'));
   }
   try {
     const tokens = await exchangeCode(code);
@@ -45,7 +55,7 @@ app.get('/auth/callback', async (req, res) => {
     res.redirect('/');
   } catch (err) {
     console.error('OAuth callback error:', err.message);
-    res.redirect('/?error=token_exchange_failed');
+    res.status(502).send(renderErrorPage(502, err.message));
   }
 });
 
@@ -73,7 +83,16 @@ app.get('/api/profile', requireAuth, async (req, res) => {
 
 app.get('/api/recovery', requireAuth, async (req, res) => {
   try {
-    const data = await whoopGet('recovery?limit=7', req.session.access_token, req.session);
+    const data = await whoopGet('recovery?limit=25', req.session.access_token, req.session);
+    res.json(data);
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
+});
+
+app.get('/activity/sleep', requireAuth, async (req, res) => {
+  try {
+    const data = await whoopGet('activity/sleep?limit=14', req.session.access_token, req.session);
     res.json(data);
   } catch (err) {
     res.status(502).json({ error: err.message });
@@ -89,7 +108,7 @@ app.get('/api/cycle', requireAuth, async (req, res) => {
   }
 });
 
-app.get('/api/sleep', requireAuth, async (req, res) => {
+app.get('/activity/sleep', requireAuth, async (req, res) => {
   try {
     const data = await whoopGet('activity/sleep?limit=1', req.session.access_token, req.session);
     res.json(data);
@@ -98,13 +117,43 @@ app.get('/api/sleep', requireAuth, async (req, res) => {
   }
 });
 
-app.get('/api/workouts', requireAuth, async (req, res) => {
+app.get('/activity/workout', requireAuth, async (req, res) => {
   try {
     const data = await whoopGet('activity/workout?limit=5', req.session.access_token, req.session);
     res.json(data);
   } catch (err) {
     res.status(502).json({ error: err.message });
   }
+});
+
+// ── Status page gallery & preview ────────────────────────────────────────────
+
+app.get('/status', (req, res) => {
+  res.send(renderGallery());
+});
+
+app.get('/status/:code', (req, res) => {
+  const code = parseInt(req.params.code, 10);
+  if (isNaN(code) || code < 100 || code > 599) {
+    return res.status(400).send(renderErrorPage(400, 'Status code must be a number between 100 and 599.'));
+  }
+  // 3xx codes: serve without a Location header so browsers display the body
+  res.status(code).send(renderErrorPage(code));
+});
+
+// ── 404 catch-all ─────────────────────────────────────────────────────────────
+
+app.use((req, res) => {
+  res.status(404).send(renderErrorPage(404));
+});
+
+// ── Global error handler ──────────────────────────────────────────────────────
+
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, _next) => {
+  console.error('Unhandled error:', err.message);
+  const code = err.status || err.statusCode || 500;
+  res.status(code).send(renderErrorPage(code, err.message));
 });
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

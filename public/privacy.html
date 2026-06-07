@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Whoop Dashboard</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0a0b0f;
+      --bg-card: #13151d;
+      --border:  #1f2233;
+      --text:    #f0f2f8;
+      --muted:   #6b7280;
+      --accent:  #00e5c0;
+      --font:    -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.7;
+    }
+
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    nav img { border-radius: 6px; }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.15s;
+    }
+
+    nav a:hover { color: var(--accent); }
+
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 4rem 2rem 6rem;
+    }
+
+    .doc-header {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .badge {
+      display: inline-block;
+      background: #00e5c015;
+      color: var(--accent);
+      border: 1px solid #00e5c030;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.65rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .doc-header h1 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+
+    .doc-header .meta {
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    section { margin-bottom: 2.5rem; }
+
+    h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    h2::before {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 1.1em;
+      background: var(--accent);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    p {
+      color: #b8bfd1;
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    p:last-child { margin-bottom: 0; }
+
+    ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    ul li {
+      color: #b8bfd1;
+      font-size: 0.95rem;
+      padding-left: 1.25rem;
+      position: relative;
+    }
+
+    ul li::before {
+      content: '–';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    .info-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .info-card p { margin: 0; }
+
+    code {
+      color: var(--accent);
+      font-size: 0.875em;
+      background: #00e5c010;
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+    }
+
+    a.inline { color: var(--accent); text-decoration: none; }
+    a.inline:hover { text-decoration: underline; }
+
+    .contact-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      color: #b8bfd1;
+    }
+
+    .contact-row a { color: var(--accent); text-decoration: none; }
+    .contact-row a:hover { text-decoration: underline; }
+
+    footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/"><img src="/logo.png" alt="WHOOP Dashboard" width="28" height="28" /></a>
+    <a href="/">← Back to Dashboard</a>
+  </nav>
+
+  <div class="page">
+
+    <header class="doc-header">
+      <div class="badge">Legal</div>
+      <h1>Privacy Policy</h1>
+      <p class="meta">Effective date: June 4, 2025 &nbsp;·&nbsp; Last updated: June 4, 2025</p>
+    </header>
+
+    <section>
+      <h2>Overview</h2>
+      <p>
+        This Privacy Policy describes how the WHOOP Dashboard ("the App") handles information
+        when you connect your WHOOP account. We collect only what is necessary to display your
+        health data and never share it with third parties.
+      </p>
+    </section>
+
+    <section>
+      <h2>Data We Access</h2>
+      <p>When you authorize the App via WHOOP's OAuth 2.0 flow, we request read-only access to:</p>
+      <div class="info-card">
+        <ul>
+          <li>Recovery score and heart-rate variability (HRV)</li>
+          <li>Daily strain and cycle metrics</li>
+          <li>Sleep performance and duration</li>
+          <li>Recent workout activity</li>
+          <li>Basic profile information (first name, last name)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>How We Use Your Data</h2>
+      <p>
+        Your WHOOP data is fetched in real time from WHOOP's API on each page load and rendered
+        directly in your browser. It is used solely to display your personal health metrics on
+        the dashboard.
+      </p>
+      <p>
+        We do <strong>not</strong> persist, analyze, aggregate, or share your health data.
+        Nothing is written to a database or sent to any external service.
+      </p>
+    </section>
+
+    <section>
+      <h2>Session &amp; Token Storage</h2>
+      <p>
+        OAuth tokens issued by WHOOP are stored in a server-side session for the duration of your
+        browser session. Sessions are invalidated when you click "Disconnect" or close your browser.
+        Tokens are never written to disk or included in logs.
+      </p>
+    </section>
+
+    <section>
+      <h2>Data Sharing</h2>
+      <p>
+        We do not sell, trade, or transfer your personal information to any outside parties.
+        Your data moves only between your browser, this application server, and WHOOP's official API.
+      </p>
+    </section>
+
+    <section>
+      <h2>Third-Party Services</h2>
+      <p>
+        The App communicates exclusively with the WHOOP API
+        (<code>api.prod.whoop.com</code>).
+        No analytics, advertising, or tracking scripts are loaded.
+      </p>
+    </section>
+
+    <section>
+      <h2>Data Retention</h2>
+      <p>
+        No health data is retained after your session ends. Disconnecting your account immediately
+        destroys the server-side session and all associated tokens.
+      </p>
+    </section>
+
+    <section>
+      <h2>Your Rights</h2>
+      <p>You may revoke this application's access to your WHOOP data at any time by:</p>
+      <ul>
+        <li>Clicking "Disconnect" in the dashboard header</li>
+        <li>Removing the App's authorization in your WHOOP account settings at
+          <a class="inline" href="https://app.whoop.com" target="_blank" rel="noopener">app.whoop.com</a>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Security</h2>
+      <p>
+        All communication with WHOOP's API is performed over HTTPS. OAuth tokens are kept in
+        server-side sessions only and are never exposed to the client. We follow WHOOP's API
+        security guidelines and do not persist credentials.
+      </p>
+    </section>
+
+    <section>
+      <h2>Changes to This Policy</h2>
+      <p>
+        We may update this Privacy Policy periodically. Changes will be reflected by an updated
+        effective date at the top of this page.
+      </p>
+    </section>
+
+    <section>
+      <h2>Contact</h2>
+      <p>If you have questions about this Privacy Policy:</p>
+      <div class="info-card">
+        <div class="contact-row">
+          <span>Email:</span>
+          <a href="mailto:Shehab.magdy@thenxt.one">Shehab.magdy@thenxt.one</a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>© 2025 WHOOP Dashboard — personal project, not affiliated with WHOOP, Inc.</span>
+      <a href="/">Back to Dashboard</a>
+    </footer>
+
+  </div>
+
+</body>
+</html>

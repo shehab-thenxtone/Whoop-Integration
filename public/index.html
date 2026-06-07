@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Whoop Dashboard</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -11,79 +14,313 @@
   <!-- Login screen -->
   <div id="login-screen" class="hidden">
     <div class="login-card">
-      <div class="logo">⚡ WHOOP</div>
+      <div class="logo-wrap"><img src="/logo.png" alt="WHOOP" width="72" height="72" /></div>
       <h1>Your health, at a glance</h1>
-      <p>Connect your Whoop account to see recovery, strain, sleep, and workout data.</p>
+      <p>Connect your Whoop account to see recovery, strain, sleep, and workout data in one dashboard.</p>
       <a href="/auth/login" class="btn-connect">Connect Whoop</a>
+      <a href="/privacy" target="_blank" rel="noopener" class="privacy-link-small">Privacy Policy</a>
     </div>
   </div>
 
   <!-- Dashboard -->
   <div id="dashboard" class="hidden">
-    <header>
-      <div class="header-inner">
-        <div class="logo">⚡ WHOOP</div>
-        <div class="header-right">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-brand">
+        <div class="logo-ring">W</div>
+        <span class="topbar-title">Whoop Dashboard</span>
+      </div>
+      <span class="sync-info"><span class="sync-dot"></span><span id="sync-time">Syncing…</span></span>
+      <div class="topbar-right">
+        <div class="user-chip">
+          <div class="avatar" id="user-avatar">?</div>
           <span id="user-name" class="user-name"></span>
-          <a href="/auth/logout" class="btn-logout">Disconnect</a>
         </div>
+        <button class="btn-refresh" id="btn-refresh" title="Refresh data">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+          Refresh
+        </button>
+        <a href="/auth/logout" class="btn-logout">Disconnect</a>
       </div>
-    </header>
+    </div>
 
-    <main>
-      <div class="cards-grid">
+    <!-- PAGE TABS -->
+    <nav class="page-tabs" aria-label="Dashboard sections">
+      <button class="page-tab active" onclick="switchPanel('overview', this)">📊 Overview</button>
+      <button class="page-tab" onclick="switchPanel('history', this)">📈 History</button>
+      <button class="page-tab" onclick="switchPanel('workouts', this)">🏃 Workouts</button>
+    </nav>
 
-        <div class="card card--recovery" id="card-recovery">
-          <div class="card-label">Recovery Score</div>
-          <div class="card-value" id="val-recovery">—</div>
-          <div class="card-sub" id="sub-recovery">Loading…</div>
+    <!-- ════ OVERVIEW PANEL ════ -->
+    <div class="panel active" id="panel-overview">
+
+      <!-- Score rings -->
+      <div class="score-row">
+
+        <div class="score-card" style="--card-color:var(--green)">
+          <div class="score-label">
+            💓 Recovery
+            <span class="tile-info">i
+              <span class="info-tooltip">
+                <strong>Recovery Score</strong>
+                Your daily readiness (0–100%) computed each morning from HRV, resting heart rate, sleep quality, and sleep debt. Green (67–100%) = push hard. Yellow (34–66%) = moderate effort. Red (0–33%) = prioritise rest. Personalised to your 30-day baseline.
+              </span>
+            </span>
+          </div>
+          <div class="ring-wrap">
+            <svg viewBox="0 0 80 80" aria-hidden="true">
+              <circle class="ring-bg" cx="40" cy="40" r="32"/>
+              <circle class="ring-fill" id="ring-recovery" cx="40" cy="40" r="32" stroke="var(--green)" stroke-dasharray="201" stroke-dashoffset="201"/>
+            </svg>
+            <div class="ring-center" id="val-recovery">—</div>
+          </div>
+          <div class="score-desc" id="sub-recovery">Loading…</div>
         </div>
 
-        <div class="card card--strain" id="card-strain">
-          <div class="card-label">Day Strain</div>
-          <div class="card-value" id="val-strain">—</div>
-          <div class="card-sub">out of 21</div>
+        <div class="score-card" style="--card-color:var(--blue)">
+          <div class="score-label">
+            ⚡ Day Strain
+            <span class="tile-info">i
+              <span class="info-tooltip">
+                <strong>Day Strain</strong>
+                A 0–21 cardiovascular load score that accumulates across your full physiological cycle. Derived from time spent in each heart rate zone weighted by intensity. 0–9 = low, 10–13 = moderate, 14–17 = strenuous, 18–21 = all out.
+              </span>
+            </span>
+          </div>
+          <div class="ring-wrap">
+            <svg viewBox="0 0 80 80" aria-hidden="true">
+              <circle class="ring-bg" cx="40" cy="40" r="32"/>
+              <circle class="ring-fill" id="ring-strain" cx="40" cy="40" r="32" stroke="var(--blue)" stroke-dasharray="201" stroke-dashoffset="201"/>
+            </svg>
+            <div class="ring-center" id="val-strain">—</div>
+          </div>
+          <div class="score-desc">out of 21</div>
         </div>
 
-        <div class="card card--sleep" id="card-sleep">
-          <div class="card-label">Sleep Performance</div>
-          <div class="card-value" id="val-sleep-perf">—</div>
-          <div class="card-sub" id="sub-sleep">Loading…</div>
+        <div class="score-card" style="--card-color:var(--purple)">
+          <div class="score-label">
+            🌙 Sleep Performance
+            <span class="tile-info">i
+              <span class="info-tooltip">
+                <strong>Sleep Performance</strong>
+                Percentage of your personalised sleep need that you achieved last night. Sleep need is calculated dynamically from recent strain, sleep debt, and nap history — not a fixed 8-hour target. 85%+ is optimal.
+              </span>
+            </span>
+          </div>
+          <div class="ring-wrap">
+            <svg viewBox="0 0 80 80" aria-hidden="true">
+              <circle class="ring-bg" cx="40" cy="40" r="32"/>
+              <circle class="ring-fill" id="ring-sleep" cx="40" cy="40" r="32" stroke="var(--purple)" stroke-dasharray="201" stroke-dashoffset="201"/>
+            </svg>
+            <div class="ring-center" id="val-sleep-perf">—</div>
+          </div>
+          <div class="score-desc" id="sub-sleep">Loading…</div>
         </div>
 
-        <div class="card card--hrv" id="card-hrv">
-          <div class="card-label">HRV</div>
-          <div class="card-value" id="val-hrv">—</div>
-          <div class="card-sub" id="sub-rhr">Resting HR: —</div>
+      </div><!-- /score-row -->
+
+      <!-- Mini metrics strip -->
+      <div class="metrics-row">
+
+        <div class="mini-metric">
+          <div class="mini-label">HRV
+            <span class="tile-info">i<span class="info-tooltip info-tt-left"><strong>Heart Rate Variability (RMSSD)</strong>Milliseconds between heartbeats during sleep. Higher = better recovery capacity. Whoop uses RMSSD, the gold-standard method. Baseline personalised over 30 days.</span></span>
+          </div>
+          <div class="mini-val"><span id="val-hrv">—</span><span class="mini-unit"> ms</span></div>
+          <div class="mini-bar-wrap"><div class="mini-bar" id="bar-hrv" style="background:var(--green)"></div></div>
         </div>
 
-      </div>
+        <div class="mini-metric">
+          <div class="mini-label">Resting HR
+            <span class="tile-info">i<span class="info-tooltip info-tt-left"><strong>Resting Heart Rate</strong>Lowest HR during your deepest sleep stage. Elevated RHR can signal fatigue, illness, or overtraining. Whoop samples every second throughout sleep to find the true minimum.</span></span>
+          </div>
+          <div class="mini-val"><span id="val-rhr">—</span><span class="mini-unit"> bpm</span></div>
+          <div class="mini-bar-wrap"><div class="mini-bar" id="bar-rhr" style="background:var(--blue)"></div></div>
+        </div>
 
-      <section class="workouts-section">
-        <h2>Recent Workouts</h2>
+        <div class="mini-metric">
+          <div class="mini-label">SpO₂
+            <span class="tile-info">i<span class="info-tooltip info-tt-left"><strong>Blood Oxygen Saturation</strong>% of haemoglobin carrying oxygen, averaged over your sleep session. Normal: 95–100%. Below 90% may indicate sleep apnea or altitude effects. Whoop 4.0+ only.</span></span>
+          </div>
+          <div class="mini-val"><span id="val-spo2">—</span><span class="mini-unit">%</span></div>
+          <div class="mini-bar-wrap"><div class="mini-bar" id="bar-spo2" style="background:var(--accent)"></div></div>
+        </div>
+
+        <div class="mini-metric">
+          <div class="mini-label">Resp. Rate
+            <span class="tile-info">i<span class="info-tooltip info-tt-left"><strong>Respiratory Rate</strong>Breaths per minute averaged across your sleep session, derived from the accelerometer. Normal range: 12–20 rpm. Sudden changes can indicate illness or poor sleep quality.</span></span>
+          </div>
+          <div class="mini-val"><span id="val-resp">—</span><span class="mini-unit"> rpm</span></div>
+          <div class="mini-bar-wrap"><div class="mini-bar" id="bar-resp" style="background:var(--purple)"></div></div>
+        </div>
+
+        <div class="mini-metric">
+          <div class="mini-label">Calories
+            <span class="tile-info">i<span class="info-tooltip info-tt-left"><strong>Total Energy Expenditure</strong>Estimated calories burned (active + basal metabolic rate) for the current physiological cycle. Calculated from heart rate, strain, and your personal metrics.</span></span>
+          </div>
+          <div class="mini-val"><span id="val-calories">—</span><span class="mini-unit"> kcal</span></div>
+          <div class="mini-bar-wrap"><div class="mini-bar" id="bar-calories" style="background:var(--amber)"></div></div>
+        </div>
+
+        <div class="mini-metric">
+          <div class="mini-label">Skin Temp Δ
+            <span class="tile-info">i<span class="info-tooltip info-tt-left"><strong>Skin Temperature Deviation</strong>How many °C your skin temp deviates from your personal baseline each night. Persistent elevation (≥+0.5°C) may indicate illness, inflammation, or hormonal changes.</span></span>
+          </div>
+          <div class="mini-val"><span id="val-skin-temp">—</span><span class="mini-unit">°C</span></div>
+          <div class="mini-bar-wrap"><div class="mini-bar" id="bar-skin" style="background:var(--amber)"></div></div>
+        </div>
+
+      </div><!-- /metrics-row -->
+
+      <!-- Charts grid -->
+      <div class="charts-grid">
+
+        <div class="chart-tile">
+          <div class="tile-header">
+            <div class="tile-header-left">
+              <div class="tile-title">HRV · 7-day trend</div>
+              <span class="tile-info">i<span class="info-tooltip"><strong>7-Day HRV Trend (RMSSD)</strong>Tracks your heart rate variability each morning after sleep. Consistently rising HRV signals improving fitness or recovery. A single-day drop is usually noise — look for multi-day trends.</span></span>
+            </div>
+            <div class="tile-badge">RMSSD · ms</div>
+          </div>
+          <canvas id="chart-hrv" height="130"></canvas>
+        </div>
+
+        <div class="chart-tile">
+          <div class="tile-header">
+            <div class="tile-header-left">
+              <div class="tile-title">Last night's sleep stages</div>
+              <span class="tile-info">i<span class="info-tooltip"><strong>Sleep Stage Breakdown</strong>Time in Awake, Light, Deep (SWS), and REM stages. Deep sleep drives physical repair; REM drives cognitive restoration. Whoop uses accelerometer + PPG for staging.</span></span>
+            </div>
+            <div class="tile-badge" id="sleep-total-badge">— total</div>
+          </div>
+          <div class="sleep-stages-bar" id="sleep-stages-bar"></div>
+          <div class="stage-legend" id="sleep-stages-legend"></div>
+          <canvas id="chart-sleep" height="90"></canvas>
+        </div>
+
+        <div class="chart-tile chart-tile--wide">
+          <div class="tile-header">
+            <div class="tile-header-left">
+              <div class="tile-title">Recovery score · 30-day history</div>
+              <span class="tile-info">i<span class="info-tooltip"><strong>30-Day Recovery Score</strong>Daily readiness score (0–100%) computed each morning. <span style="color:var(--green)">Green (67–100%)</span>: push hard. <span style="color:var(--amber)">Yellow (34–66%)</span>: moderate. <span style="color:var(--red)">Red (0–33%)</span>: rest.</span></span>
+            </div>
+            <div class="tile-badge">Score 0–100</div>
+          </div>
+          <canvas id="chart-recovery" height="110"></canvas>
+        </div>
+
+        <div class="chart-tile">
+          <div class="tile-header">
+            <div class="tile-header-left">
+              <div class="tile-title">Blood Oxygen (SpO₂) · 7-day</div>
+              <span class="tile-info">i<span class="info-tooltip"><strong>Overnight SpO₂</strong>Blood oxygen saturation averaged across your sleep session. Normal: 95–100%. Below 90% may indicate sleep apnea or altitude effects. Whoop 4.0+ only.</span></span>
+            </div>
+            <div class="tile-badge">SpO₂ %</div>
+          </div>
+          <canvas id="chart-spo2" height="130"></canvas>
+        </div>
+
+        <div class="chart-tile">
+          <div class="tile-header">
+            <div class="tile-header-left">
+              <div class="tile-title">Skin temp Δ · 14-day</div>
+              <span class="tile-info">i<span class="info-tooltip"><strong>Skin Temperature Deviation</strong>How many °C your skin temp deviates from your personal baseline each night. Persistent elevation (≥+0.5°C) may indicate illness, inflammation, or hormonal changes.</span></span>
+            </div>
+            <div class="tile-badge">°C delta</div>
+          </div>
+          <canvas id="chart-skin-temp" height="130"></canvas>
+        </div>
+
+      </div><!-- /charts-grid -->
+
+    </div><!-- /panel-overview -->
+
+    <!-- ════ HISTORY PANEL ════ -->
+    <div class="panel" id="panel-history">
+
+      <div class="history-section">
+        <h2 class="section-title">Recovery History · Last 30 Days</h2>
         <div class="table-wrap">
-          <table id="workouts-table">
+          <table>
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Activity</th>
-                <th>Strain</th>
-                <th>Avg HR</th>
+                <th>Recovery</th>
+                <th>Zone</th>
+                <th>HRV (ms)</th>
+                <th>Resting HR</th>
+                <th>SpO₂</th>
+                <th>Skin Temp Δ</th>
               </tr>
             </thead>
-            <tbody id="workouts-body">
-              <tr><td colspan="4" class="loading-row">Loading…</td></tr>
+            <tbody id="recovery-history-body">
+              <tr><td colspan="7" class="loading-row">Loading…</td></tr>
             </tbody>
           </table>
         </div>
-      </section>
-    </main>
+      </div>
+
+      <div class="history-section">
+        <h2 class="section-title">Sleep History · Last 14 Sessions</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Performance</th>
+                <th>In Bed</th>
+                <th>Deep (SWS)</th>
+                <th>REM</th>
+                <th>Light</th>
+                <th>Resp. Rate</th>
+              </tr>
+            </thead>
+            <tbody id="sleep-history-body">
+              <tr><td colspan="7" class="loading-row">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /panel-history -->
+
+    <!-- ════ WORKOUTS PANEL ════ -->
+    <div class="panel" id="panel-workouts">
+
+      <h2 class="section-title">Recent Workouts</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Activity</th>
+              <th>Strain</th>
+              <th>Duration</th>
+              <th>Avg HR</th>
+              <th>Max HR</th>
+              <th>Calories</th>
+            </tr>
+          </thead>
+          <tbody id="workouts-body">
+            <tr><td colspan="7" class="loading-row">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /panel-workouts -->
 
     <footer>
-      <p>Displaying real Whoop data — mock mode not active</p>
+      <p>Real Whoop data · <a href="/privacy" target="_blank" rel="noopener" class="privacy-link">Privacy Policy</a></p>
     </footer>
-  </div>
 
+  </div><!-- /dashboard -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
