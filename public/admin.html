@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHOOP · API Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #080a0f;
+      --s1:      #0e1117;
+      --s2:      #141820;
+      --s3:      #1a1f2a;
+      --border:  rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.13);
+      --text:    #dde1ec;
+      --muted:   #5a6278;
+      --green:   #00e5c0;
+      --blue:    #4a9eff;
+      --purple:  #a855f7;
+      --amber:   #f59e0b;
+      --red:     #ff4d6d;
+      --font:    'Space Grotesk', system-ui, sans-serif;
+      --mono:    'Space Mono', monospace;
+      --r:       12px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────────── */
+    .admin-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8,10,15,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #0c1a26, #1a2640);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .brand-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .brand-sub {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+      letter-spacing: 0.04em;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-ghost {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+    .refresh-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .refresh-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+      min-width: 90px;
+      text-align: right;
+    }
+    .refresh-track {
+      width: 60px;
+      height: 3px;
+      background: var(--s3);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .refresh-fill {
+      height: 100%;
+      background: var(--blue);
+      border-radius: 99px;
+      transition: width 1s linear;
+    }
+    .btn-icon {
+      background: var(--s2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .btn-icon:hover { color: var(--text); border-color: var(--border2); }
+
+    /* ── Page ────────────────────────────────────────────────────────────────── */
+    .page {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 24px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── Tile ────────────────────────────────────────────────────────────────── */
+    .tile {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px;
+    }
+    .tile-title {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    /* ── Stat cards ──────────────────────────────────────────────────────────── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+    }
+    .stat-card {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 16px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: var(--r) var(--r) 0 0;
+    }
+    .ac-green::before  { background: var(--green); }
+    .ac-blue::before   { background: var(--blue); }
+    .ac-purple::before { background: var(--purple); }
+    .ac-amber::before  { background: var(--amber); }
+    .ac-red::before    { background: var(--red); }
+    .ac-muted::before  { background: var(--muted); }
+
+    .sc-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .sc-value {
+      font-family: var(--mono);
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .c-green  { color: var(--green); }
+    .c-blue   { color: var(--blue); }
+    .c-amber  { color: var(--amber); }
+    .c-red    { color: var(--red); }
+    .c-muted  { color: var(--muted); }
+    .c-text   { color: var(--text); }
+    .sc-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── Gauge ───────────────────────────────────────────────────────────────── */
+    .gauge-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .health-badge {
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--mono);
+      padding: 4px 10px;
+      border-radius: 99px;
+      letter-spacing: 0.04em;
+    }
+    .hb-green  { background: rgba(0,229,192,0.1);  color: var(--green); border: 1px solid rgba(0,229,192,0.2); }
+    .hb-amber  { background: rgba(245,158,11,0.1); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+    .hb-red    { background: rgba(255,77,109,0.12); color: var(--red);  border: 1px solid rgba(255,77,109,0.2); }
+    .hb-muted  { background: rgba(255,255,255,0.04); color: var(--muted); border: 1px solid var(--border); }
+
+    .gauge-numbers {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .gauge-big {
+      font-family: var(--mono);
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .gauge-frac {
+      font-size: 18px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+    .gauge-label { font-size: 12px; color: var(--muted); margin-left: 10px; }
+    .gauge-reset { font-size: 13px; font-family: var(--mono); color: var(--muted); }
+    .gauge-track {
+      height: 10px;
+      background: var(--s3);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .gauge-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.6s cubic-bezier(0.16,1,0.3,1), background 0.4s ease;
+    }
+    .gauge-ticks {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    /* ── Two-col ─────────────────────────────────────────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .chart-wrap { position: relative; height: 200px; }
+
+    /* ── Tables ──────────────────────────────────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 0 8px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 8px 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .empty-row {
+      text-align: center;
+      color: var(--muted);
+      padding: 28px 0 !important;
+      border-bottom: none !important;
+    }
+    .ep-path {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--blue);
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .n { font-family: var(--mono); }
+    .status-badge {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+    }
+    .s2 { background: rgba(0,229,192,0.1);  color: var(--green); }
+    .s4 { background: rgba(245,158,11,0.1); color: var(--amber); }
+    .s429 { background: rgba(255,77,109,0.15); color: var(--red); }
+    .s5 { background: rgba(255,77,109,0.1); color: var(--red); }
+
+    /* ── Footer ──────────────────────────────────────────────────────────────── */
+    .page-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .btn-danger {
+      background: rgba(255,77,109,0.08);
+      border: 1px solid rgba(255,77,109,0.2);
+      color: var(--red);
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-danger:hover { background: rgba(255,77,109,0.16); }
+    .footer-note { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+
+    /* ── Responsive ──────────────────────────────────────────────────────────── */
+    @media (max-width: 1024px) { .stat-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px)  { .stat-grid { grid-template-columns: repeat(2, 1fr); } .two-col { grid-template-columns: 1fr; } .gauge-big { font-size: 30px; } }
+    @media (max-width: 480px)  { .header-inner { padding: 0 16px; } .page { padding: 16px; } .brand-sub { display: none; } }
+  </style>
+</head>
+<body>
+
+<header class="admin-header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <div class="brand-title">WHOOP Admin</div>
+        <div class="brand-sub">API Rate Limit Monitor</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <a href="/" class="btn-ghost">← Dashboard</a>
+      <div class="refresh-wrap">
+        <span class="refresh-label" id="refresh-label">Refresh in 30s</span>
+        <div class="refresh-track">
+          <div class="refresh-fill" id="refresh-fill" style="width:100%"></div>
+        </div>
+        <button class="btn-icon" onclick="manualRefresh()" title="Refresh now">↺</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+
+  <!-- ── Stat cards ─────────────────────────────────────────────────────────── -->
+  <div class="stat-grid">
+    <div class="stat-card ac-blue">
+      <div class="sc-label">Total Calls</div>
+      <div class="sc-value c-blue" id="sc-total">—</div>
+      <div class="sc-sub">all time</div>
+    </div>
+    <div class="stat-card ac-green">
+      <div class="sc-label">Remaining</div>
+      <div class="sc-value c-muted" id="sc-remaining">—</div>
+      <div class="sc-sub">current window</div>
+    </div>
+    <div class="stat-card ac-muted">
+      <div class="sc-label">Rate Limit</div>
+      <div class="sc-value c-muted" id="sc-limit">—</div>
+      <div class="sc-sub">requests / min</div>
+    </div>
+    <div class="stat-card ac-purple">
+      <div class="sc-label">Window Used</div>
+      <div class="sc-value c-muted" id="sc-used">—</div>
+      <div class="sc-sub">of capacity</div>
+    </div>
+    <div class="stat-card ac-red">
+      <div class="sc-label">Rate Limited</div>
+      <div class="sc-value c-green" id="sc-429">—</div>
+      <div class="sc-sub">429 responses</div>
+    </div>
+    <div class="stat-card ac-muted">
+      <div class="sc-label">Last Call</div>
+      <div class="sc-value c-muted" id="sc-last" style="font-size:17px">—</div>
+      <div class="sc-sub" id="sc-last-ep">—</div>
+    </div>
+  </div>
+
+  <!-- ── Rate limit gauge ───────────────────────────────────────────────────── -->
+  <div class="tile">
+    <div class="gauge-header">
+      <div class="tile-title" style="margin:0">Rate Limit Window</div>
+      <div class="health-badge hb-muted" id="health-badge">● No data</div>
+    </div>
+    <div class="gauge-numbers">
+      <div>
+        <span class="gauge-big c-text" id="gauge-rem">—</span><span class="gauge-frac" id="gauge-frac"> / —</span>
+        <span class="gauge-label">requests remaining</span>
+      </div>
+      <div class="gauge-reset" id="gauge-reset">—</div>
+    </div>
+    <div class="gauge-track">
+      <div class="gauge-fill" id="gauge-fill" style="width:0%;background:var(--muted)"></div>
+    </div>
+    <div class="gauge-ticks">
+      <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100% used</span>
+    </div>
+  </div>
+
+  <!-- ── Chart + Endpoints ──────────────────────────────────────────────────── -->
+  <div class="two-col">
+
+    <div class="tile">
+      <div class="tile-title">Remaining over time · last 40 calls</div>
+      <div class="chart-wrap">
+        <canvas id="chart-rem"></canvas>
+      </div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-title">Endpoints breakdown</div>
+      <table>
+        <thead><tr><th>Endpoint</th><th>Calls</th><th>Errors</th><th>Last Rem.</th></tr></thead>
+        <tbody id="ep-body"><tr><td class="empty-row" colspan="4">No data yet</td></tr></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ── Recent calls ───────────────────────────────────────────────────────── -->
+  <div class="tile">
+    <div class="tile-title">Recent API calls · last 25</div>
+    <table>
+      <thead><tr><th>Time</th><th>Endpoint</th><th>Status</th><th>Remaining</th><th>Limit</th><th>Resets</th><th>Retry-After</th></tr></thead>
+      <tbody id="calls-body"><tr><td class="empty-row" colspan="7">No API calls recorded yet — visit the dashboard to trigger requests</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- ── Footer ─────────────────────────────────────────────────────────────── -->
+  <div class="page-footer">
+    <button class="btn-danger" onclick="confirmClear()">⚠ Clear all stats</button>
+    <span class="footer-note">
+      Data: files/rate-limit-stats.json &nbsp;·&nbsp; Updated: <span id="updated-at">—</span>
+    </span>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const INTERVAL = 30;
+let countdown  = INTERVAL;
+let rafTimer   = null;
+let remChart   = null;
+
+// ── Refresh loop ──────────────────────────────────────────────────────────────
+function startCountdown() {
+  clearInterval(rafTimer);
+  countdown = INTERVAL;
+  rafTimer = setInterval(() => {
+    countdown--;
+    const pct = countdown / INTERVAL * 100;
+    const fill  = document.getElementById('refresh-fill');
+    const label = document.getElementById('refresh-label');
+    if (fill)  fill.style.width = pct + '%';
+    if (label) label.textContent = `Refresh in ${countdown}s`;
+    if (countdown <= 0) loadStats();
+  }, 1000);
+}
+
+function manualRefresh() {
+  clearInterval(rafTimer);
+  loadStats();
+}
+
+// ── Data fetch ────────────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const res  = await fetch('/api/admin/stats');
+    const data = await res.json();
+    render(data);
+  } catch (e) {
+    console.error('[admin] fetch failed:', e);
+  }
+  startCountdown();
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render({ summary, recentCalls }) {
+  const latest    = recentCalls.length ? recentCalls[recentCalls.length - 1] : null;
+  const remaining = latest?.remaining ?? null;
+  const limit     = latest?.limit     ?? null;
+  const reset     = latest?.reset     ?? null;
+  const usedPct   = limit && remaining !== null ? Math.round((1 - remaining / limit) * 100) : null;
+  const remRatio  = limit && remaining !== null ? remaining / limit : null;
+  const health    = remRatio !== null
+    ? (remRatio > 0.5 ? 'green' : remRatio > 0.2 ? 'amber' : 'red')
+    : 'muted';
+
+  // Stat cards
+  set('sc-total',     summary.totalCalls.toLocaleString(), 'c-blue');
+  set('sc-remaining', remaining !== null ? remaining : '—',
+      remRatio !== null ? (remRatio > 0.5 ? 'c-green' : remRatio > 0.2 ? 'c-amber' : 'c-red') : 'c-muted');
+  set('sc-limit',     limit !== null ? limit : '—', 'c-muted');
+  set('sc-used',      usedPct !== null ? usedPct + '%' : '—',
+      usedPct !== null ? (usedPct < 50 ? 'c-green' : usedPct < 80 ? 'c-amber' : 'c-red') : 'c-muted');
+  set('sc-429',       summary.total429s.toLocaleString(),
+      summary.total429s > 0 ? 'c-red' : 'c-green');
+  set('sc-last',      summary.lastCallAt ? timeAgo(summary.lastCallAt) : '—', 'c-muted');
+  setText('sc-last-ep', latest ? shortEp(latest.endpoint) : '—');
+
+  // Gauge
+  setText('gauge-rem',  remaining !== null ? remaining : '—');
+  setText('gauge-frac', limit !== null ? ' / ' + limit : ' / —');
+  const fill = document.getElementById('gauge-fill');
+  if (fill) {
+    fill.style.width      = (usedPct ?? 0) + '%';
+    fill.style.background = `var(--${health})`;
+  }
+  const hBadge = document.getElementById('health-badge');
+  if (hBadge) {
+    const lbl = { green: '● Healthy', amber: '● Moderate', red: '● Critical', muted: '● No data' };
+    hBadge.textContent = lbl[health];
+    hBadge.className = 'health-badge hb-' + health;
+  }
+  setText('gauge-reset', reset ? fmtReset(reset) : '—');
+
+  // Sections
+  renderEndpoints(summary.endpoints);
+  renderCalls(recentCalls.slice(-25).reverse());
+  renderChart(recentCalls.slice(-40));
+  setText('updated-at', new Date().toLocaleTimeString());
+}
+
+function renderEndpoints(eps) {
+  const body = document.getElementById('ep-body');
+  if (!body) return;
+  const rows = Object.entries(eps).sort((a, b) => b[1].calls - a[1].calls);
+  if (!rows.length) { body.innerHTML = '<tr><td class="empty-row" colspan="4">No data yet</td></tr>'; return; }
+  body.innerHTML = rows.map(([ep, d]) => {
+    const remC = d.lastRemaining !== null && d.limit
+      ? (d.lastRemaining / d.limit > 0.5 ? 'color:var(--green)' : d.lastRemaining / d.limit > 0.2 ? 'color:var(--amber)' : 'color:var(--red)')
+      : '';
+    return `<tr>
+      <td><div class="ep-path" title="${ep}">${shortEp(ep)}</div></td>
+      <td class="n">${d.calls}</td>
+      <td class="n" style="${d.errors > 0 ? 'color:var(--red)' : 'color:var(--muted)'}">${d.errors}</td>
+      <td class="n" style="${remC}">${d.lastRemaining !== null ? d.lastRemaining : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCalls(calls) {
+  const body = document.getElementById('calls-body');
+  if (!body) return;
+  if (!calls.length) {
+    body.innerHTML = '<tr><td class="empty-row" colspan="7">No API calls recorded yet — visit the dashboard to trigger requests</td></tr>';
+    return;
+  }
+  body.innerHTML = calls.map(c => {
+    const sCls = c.status === 429 ? 's429' : c.status >= 500 ? 's5' : c.status >= 400 ? 's4' : 's2';
+    const remC = c.remaining !== null && c.limit
+      ? (c.remaining / c.limit > 0.5 ? 'color:var(--green)' : c.remaining / c.limit > 0.2 ? 'color:var(--amber)' : 'color:var(--red)')
+      : '';
+    return `<tr>
+      <td style="color:var(--muted);font-family:var(--mono);font-size:11px">${fmtTime(c.ts)}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--blue)" title="${c.endpoint}">${shortEp(c.endpoint)}</td>
+      <td><span class="status-badge ${sCls}">${c.status}</span></td>
+      <td class="n" style="${remC}">${c.remaining !== null ? c.remaining : '—'}</td>
+      <td class="n" style="color:var(--muted)">${c.limit !== null ? c.limit : '—'}</td>
+      <td style="color:var(--muted);font-family:var(--mono);font-size:11px">${c.reset ? fmtReset(c.reset) : '—'}</td>
+      <td style="color:var(--muted);font-family:var(--mono);font-size:11px">${c.retryAfter !== null ? c.retryAfter + 's' : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderChart(calls) {
+  const pts = calls.filter(c => c.remaining !== null);
+  const ctx  = document.getElementById('chart-rem');
+  if (!ctx || !pts.length) return;
+
+  const labels = pts.map(c => fmtTime(c.ts));
+  const values = pts.map(c => c.remaining);
+  const lim    = pts[pts.length - 1].limit;
+
+  const ptColors = values.map(v => {
+    if (!lim) return 'rgba(74,158,255,0.9)';
+    const r = v / lim;
+    return r > 0.5 ? 'rgba(0,229,192,0.9)' : r > 0.2 ? 'rgba(245,158,11,0.9)' : 'rgba(255,77,109,0.9)';
+  });
+
+  const datasets = [{
+    label: 'Remaining',
+    data: values,
+    borderColor: 'rgba(74,158,255,0.5)',
+    backgroundColor: 'rgba(74,158,255,0.06)',
+    pointBackgroundColor: ptColors,
+    pointBorderColor: 'transparent',
+    pointRadius: 4,
+    borderWidth: 1.5,
+    tension: 0.35,
+    fill: true,
+    spanGaps: true,
+  }];
+
+  if (lim) datasets.push({
+    label: 'Limit',
+    data: Array(values.length).fill(lim),
+    borderColor: 'rgba(255,255,255,0.08)',
+    borderDash: [4, 4],
+    borderWidth: 1,
+    pointRadius: 0,
+    fill: false,
+  });
+
+  if (remChart) { remChart.destroy(); remChart = null; }
+  remChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#141820',
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 1,
+          titleColor: '#5a6278',
+          bodyColor: '#dde1ec',
+          padding: 10,
+        },
+      },
+      scales: {
+        x: {
+          ticks: { color: '#5a6278', font: { family: "'Space Mono'", size: 10 }, maxTicksLimit: 7 },
+          grid: { color: 'rgba(255,255,255,0.04)' },
+        },
+        y: {
+          min: 0,
+          max: lim ? lim + Math.ceil(lim * 0.08) : undefined,
+          ticks: { color: '#5a6278', font: { family: "'Space Mono'", size: 10 } },
+          grid: { color: 'rgba(255,255,255,0.04)' },
+        },
+      },
+    },
+  });
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function set(id, val, cls) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = val;
+  if (cls) el.className = 'sc-value ' + cls;
+}
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+function shortEp(ep) { return ep.replace(/^v\d+\//, '').replace(/\?.*$/, ''); }
+function fmtTime(ts)  { return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+function fmtReset(epochSec) {
+  const diff = epochSec - Math.floor(Date.now() / 1000);
+  if (diff > 0) return `in ${diff}s`;
+  return new Date(epochSec * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+function timeAgo(ts) {
+  const s = Math.floor((Date.now() - new Date(ts)) / 1000);
+  if (s < 60)   return s + 's ago';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  return Math.floor(s / 3600) + 'h ago';
+}
+async function confirmClear() {
+  if (!confirm('Clear all recorded stats? This cannot be undone.')) return;
+  await fetch('/api/admin/clear', { method: 'POST' });
+  loadStats();
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+loadStats();
+</script>
+</body>
+</html>

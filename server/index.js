@@ -5,6 +5,7 @@ const session = require('express-session');
 const path = require('path');
 const { exchangeCode, whoopGet } = require('./whoop');
 const { renderErrorPage, renderGallery } = require('./errorPage');
+const { getStats, clearStats } = require('./rateLimit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -114,19 +115,7 @@ app.get('/api/recovery', requireAuth, async (req, res) => {
   }
 });
 
-// Latest sleep for overview (stages bar + sleep ring)
-app.get('/api/sleep', requireAuth, async (req, res) => {
-  try {
-    const data = await whoopGet('v2/activity/sleep?limit=1', req.session.access_token, req.session);
-    console.log('[GET /api/sleep] records:', data?.records?.length ?? 0);
-    res.json(data);
-  } catch (err) {
-    console.error('[GET /api/sleep]', err.message);
-    res.status(502).json({ error: err.message });
-  }
-});
-
-// 25 sleep sessions — history tab + sleep performance chart
+// 25 sleep sessions — overview (latest = records[0]), history tab, sleep performance chart
 app.get('/api/sleep-history', requireAuth, async (req, res) => {
   try {
     const data = await whoopGet('v2/activity/sleep?limit=25', req.session.access_token, req.session);
@@ -162,6 +151,20 @@ app.get('/api/workouts', requireAuth, async (req, res) => {
   }
 });
 
+// ── Admin (no auth) ───────────────────────────────────────────────────────────
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin.html'));
+});
+
+app.get('/api/admin/stats', (req, res) => {
+  res.json(getStats());
+});
+
+app.post('/api/admin/clear', (req, res) => {
+  res.json(clearStats());
+});
+
 // ── Status page gallery & preview ────────────────────────────────────────────
 
 app.get('/status', (req, res) => {
@@ -194,5 +197,5 @@ app.use((err, req, res, _next) => {
 
 app.listen(PORT, () => {
   console.log(`[server] running on http://localhost:${PORT}`);
-  console.log('[server] v2 routes: /api/profile  /api/body  /api/recovery  /api/sleep  /api/sleep-history  /api/cycle  /api/workouts');
+  console.log('[server] v2 routes: /api/profile  /api/body  /api/recovery  /api/sleep-history  /api/cycle  /api/workouts');
 });

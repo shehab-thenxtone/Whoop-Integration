@@ -165,16 +165,15 @@ async function init() {
 
   showDashboard(profile);
 
-  const [recovery, cycle, sleep, workouts, sleepHistory, body] = await Promise.allSettled([
+  const [recovery, cycle, sleepHistory, workouts, body] = await Promise.allSettled([
     fetch('/api/recovery').then(r => r.json()),
     fetch('/api/cycle').then(r => r.json()),
-    fetch('/api/sleep').then(r => r.json()),
-    fetch('/api/workouts').then(r => r.json()),
     fetch('/api/sleep-history').then(r => r.json()),
+    fetch('/api/workouts').then(r => r.json()),
     fetch('/api/body').then(r => r.json()),
   ]);
 
-  renderOverview(recovery, cycle, sleep, sleepHistory);
+  renderOverview(recovery, cycle, sleepHistory);
   renderHistory(recovery, sleepHistory);
   renderWorkouts(workouts);
   renderProfile(profile, body);
@@ -199,7 +198,7 @@ function showDashboard(profile) {
 }
 
 // ── Overview ──────────────────────────────────────────────────────────────────
-function renderOverview(recoveryResult, cycleResult, sleepResult, sleepHistoryResult) {
+function renderOverview(recoveryResult, cycleResult, sleepHistoryResult) {
   const recRecords = safeRecords(recoveryResult);
   const latest = recRecords[0];
 
@@ -239,8 +238,8 @@ function renderOverview(recoveryResult, cycleResult, sleepResult, sleepHistoryRe
   if (strain != null) setTimeout(function() { setRing('ring-strain', strain, 21); }, 200);
   if (kcal   != null) setBar('bar-calories', clamp(kcal / 4000 * 100, 0, 100));
 
-  // Sleep
-  const sleepRecords = safeRecords(sleepResult);
+  // Sleep — use records[0] from sleep-history (same data, no extra call needed)
+  const sleepRecords = safeRecords(sleepHistoryResult);
   const latestSleep  = sleepRecords[0];
   const ssc       = (latestSleep && latestSleep.score) || {};
   const stages    = ssc.stage_summary || {};

@@ -1,5 +1,6 @@
 const TOKEN_URL = 'https://api.prod.whoop.com/oauth/oauth2/token';
-const API_BASE = 'https://api.prod.whoop.com/developer';
+const API_BASE  = 'https://api.prod.whoop.com/developer';
+const { record: recordRateLimit } = require('./rateLimit');
 
 async function exchangeCode(code) {
   const body = new URLSearchParams({
@@ -58,6 +59,8 @@ async function whoopGet(path, token, session) {
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${currentToken}` },
     });
+
+    try { recordRateLimit(path, res.status, res.headers); } catch (_) {}
 
     if (res.status === 401 && attempt === 0) {
       const tokens = await refreshAccessToken(session.refresh_token);

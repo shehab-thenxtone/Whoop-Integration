@@ -1,0 +1,520 @@
+{
+  "summary": {
+    "totalCalls": 51,
+    "total429s": 0,
+    "lastCallAt": "2026-06-08T08:58:02.762Z",
+    "last429At": null,
+    "endpoints": {
+      "v2/user/profile/basic": {
+        "calls": 6,
+        "errors": 0,
+        "lastRemaining": 99,
+        "limit": 100,
+        "lastCalledAt": "2026-06-08T08:58:02.214Z"
+      },
+      "v2/cycle?limit=1": {
+        "calls": 8,
+        "errors": 0,
+        "lastRemaining": 94,
+        "limit": 100,
+        "lastCalledAt": "2026-06-08T08:58:02.749Z"
+      },
+      "v2/activity/workout?limit=5": {
+        "calls": 8,
+        "errors": 0,
+        "lastRemaining": 97,
+        "limit": 100,
+        "lastCalledAt": "2026-06-08T08:58:02.762Z"
+      },
+      "v2/activity/sleep?limit=1": {
+        "calls": 5,
+        "errors": 0,
+        "lastRemaining": 84,
+        "limit": 100,
+        "lastCalledAt": "2026-06-08T08:48:22.001Z"
+      },
+      "v2/user/measurement/body": {
+        "calls": 8,
+        "errors": 0,
+        "lastRemaining": 98,
+        "limit": 100,
+        "lastCalledAt": "2026-06-08T08:58:02.720Z"
+      },
+      "v2/activity/sleep?limit=25": {
+        "calls": 8,
+        "errors": 0,
+        "lastRemaining": 97,
+        "limit": 100,
+        "lastCalledAt": "2026-06-08T08:58:02.731Z"
+      },
+      "v2/recovery?limit=25": {
+        "calls": 8,
+        "errors": 0,
+        "lastRemaining": 97,
+        "limit": 100,
+        "lastCalledAt": "2026-06-08T08:58:02.747Z"
+      }
+    }
+  },
+  "recentCalls": [
+    {
+      "ts": "2026-06-08T08:40:39.538Z",
+      "endpoint": "v2/user/profile/basic",
+      "status": 200,
+      "limit": 100,
+      "remaining": 99,
+      "reset": 21,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:40:40.022Z",
+      "endpoint": "v2/cycle?limit=1",
+      "status": 200,
+      "limit": 100,
+      "remaining": 98,
+      "reset": 21,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:40:40.176Z",
+      "endpoint": "v2/activity/workout?limit=5",
+      "status": 200,
+      "limit": 100,
+      "remaining": 97,
+      "reset": 20,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:40:40.189Z",
+      "endpoint": "v2/activity/sleep?limit=1",
+      "status": 200,
+      "limit": 100,
+      "remaining": 96,
+      "reset": 20,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:40:40.191Z",
+      "endpoint": "v2/user/measurement/body",
+      "status": 200,
+      "limit": 100,
+      "remaining": 94,
+      "reset": 20,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:40:40.196Z",
+      "endpoint": "v2/activity/sleep?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 95,
+      "reset": 20,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:40:40.240Z",
+      "endpoint": "v2/recovery?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 93,
+      "reset": 20,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:47:44.965Z",
+      "endpoint": "v2/user/profile/basic",
+      "status": 200,
+      "limit": 100,
+      "remaining": 99,
+      "reset": 16,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:47:45.399Z",
+      "endpoint": "v2/activity/sleep?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 97,
+      "reset": 15,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:47:45.401Z",
+      "endpoint": "v2/recovery?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 98,
+      "reset": 15,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:47:45.424Z",
+      "endpoint": "v2/activity/sleep?limit=1",
+      "status": 200,
+      "limit": 100,
+      "remaining": 94,
+      "reset": 15,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:47:45.427Z",
+      "endpoint": "v2/cycle?limit=1",
+      "status": 200,
+      "limit": 100,
+      "remaining": 97,
+      "reset": 15,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:47:45.435Z",
+      "endpoint": "v2/activity/workout?limit=5",
+      "status": 200,
+      "limit": 100,
+      "remaining": 95,
+      "reset": 15,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:47:45.571Z",
+      "endpoint": "v2/user/measurement/body",
+      "status": 200,
+      "limit": 100,
+      "remaining": 93,
+      "reset": 15,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:05.501Z",
+      "endpoint": "v2/user/profile/basic",
+      "status": 200,
+      "limit": 100,
+      "remaining": 99,
+      "reset": 55,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:05.910Z",
+      "endpoint": "v2/user/measurement/body",
+      "status": 200,
+      "limit": 100,
+      "remaining": 98,
+      "reset": 55,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:05.922Z",
+      "endpoint": "v2/cycle?limit=1",
+      "status": 200,
+      "limit": 100,
+      "remaining": 94,
+      "reset": 55,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:05.926Z",
+      "endpoint": "v2/activity/sleep?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 95,
+      "reset": 55,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:05.929Z",
+      "endpoint": "v2/recovery?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 96,
+      "reset": 55,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:05.939Z",
+      "endpoint": "v2/activity/workout?limit=5",
+      "status": 200,
+      "limit": 100,
+      "remaining": 97,
+      "reset": 55,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:06.223Z",
+      "endpoint": "v2/activity/sleep?limit=1",
+      "status": 200,
+      "limit": 100,
+      "remaining": 93,
+      "reset": 54,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:18.999Z",
+      "endpoint": "v2/cycle?limit=1",
+      "status": 200,
+      "limit": 100,
+      "remaining": 92,
+      "reset": 42,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:19.017Z",
+      "endpoint": "v2/user/measurement/body",
+      "status": 200,
+      "limit": 100,
+      "remaining": 88,
+      "reset": 41,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:19.018Z",
+      "endpoint": "v2/activity/sleep?limit=1",
+      "status": 200,
+      "limit": 100,
+      "remaining": 91,
+      "reset": 42,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:19.027Z",
+      "endpoint": "v2/recovery?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 90,
+      "reset": 41,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:19.044Z",
+      "endpoint": "v2/activity/sleep?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 87,
+      "reset": 41,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:19.061Z",
+      "endpoint": "v2/activity/workout?limit=5",
+      "status": 200,
+      "limit": 100,
+      "remaining": 89,
+      "reset": 41,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:21.576Z",
+      "endpoint": "v2/user/profile/basic",
+      "status": 200,
+      "limit": 100,
+      "remaining": 86,
+      "reset": 39,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:21.991Z",
+      "endpoint": "v2/user/measurement/body",
+      "status": 200,
+      "limit": 100,
+      "remaining": 81,
+      "reset": 39,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:21.999Z",
+      "endpoint": "v2/activity/sleep?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 84,
+      "reset": 39,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:22.001Z",
+      "endpoint": "v2/activity/sleep?limit=1",
+      "status": 200,
+      "limit": 100,
+      "remaining": 84,
+      "reset": 39,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:22.009Z",
+      "endpoint": "v2/recovery?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 82,
+      "reset": 39,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:22.012Z",
+      "endpoint": "v2/activity/workout?limit=5",
+      "status": 200,
+      "limit": 100,
+      "remaining": 85,
+      "reset": 38,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:48:22.025Z",
+      "endpoint": "v2/cycle?limit=1",
+      "status": 200,
+      "limit": 100,
+      "remaining": 80,
+      "reset": 39,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:57:17.928Z",
+      "endpoint": "v2/user/profile/basic",
+      "status": 200,
+      "limit": 100,
+      "remaining": 99,
+      "reset": 43,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:57:18.339Z",
+      "endpoint": "v2/user/measurement/body",
+      "status": 200,
+      "limit": 100,
+      "remaining": 98,
+      "reset": 42,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:57:18.361Z",
+      "endpoint": "v2/recovery?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 96,
+      "reset": 42,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:57:18.365Z",
+      "endpoint": "v2/activity/sleep?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 97,
+      "reset": 42,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:57:18.399Z",
+      "endpoint": "v2/cycle?limit=1",
+      "status": 200,
+      "limit": 100,
+      "remaining": 94,
+      "reset": 42,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:57:18.409Z",
+      "endpoint": "v2/activity/workout?limit=5",
+      "status": 200,
+      "limit": 100,
+      "remaining": 95,
+      "reset": 42,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:57:59.383Z",
+      "endpoint": "v2/user/measurement/body",
+      "status": 200,
+      "limit": 100,
+      "remaining": 91,
+      "reset": 1,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:57:59.401Z",
+      "endpoint": "v2/activity/sleep?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 93,
+      "reset": 1,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:57:59.420Z",
+      "endpoint": "v2/activity/workout?limit=5",
+      "status": 200,
+      "limit": 100,
+      "remaining": 92,
+      "reset": 1,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:57:59.507Z",
+      "endpoint": "v2/recovery?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 90,
+      "reset": 1,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:57:59.522Z",
+      "endpoint": "v2/cycle?limit=1",
+      "status": 200,
+      "limit": 100,
+      "remaining": 89,
+      "reset": 1,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:58:02.214Z",
+      "endpoint": "v2/user/profile/basic",
+      "status": 200,
+      "limit": 100,
+      "remaining": 99,
+      "reset": 58,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:58:02.720Z",
+      "endpoint": "v2/user/measurement/body",
+      "status": 200,
+      "limit": 100,
+      "remaining": 98,
+      "reset": 58,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:58:02.731Z",
+      "endpoint": "v2/activity/sleep?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 97,
+      "reset": 58,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:58:02.747Z",
+      "endpoint": "v2/recovery?limit=25",
+      "status": 200,
+      "limit": 100,
+      "remaining": 97,
+      "reset": 58,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:58:02.749Z",
+      "endpoint": "v2/cycle?limit=1",
+      "status": 200,
+      "limit": 100,
+      "remaining": 94,
+      "reset": 58,
+      "retryAfter": null
+    },
+    {
+      "ts": "2026-06-08T08:58:02.762Z",
+      "endpoint": "v2/activity/workout?limit=5",
+      "status": 200,
+      "limit": 100,
+      "remaining": 97,
+      "reset": 58,
+      "retryAfter": null
+    }
+  ]
+}
